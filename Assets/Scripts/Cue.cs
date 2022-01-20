@@ -78,7 +78,8 @@ public class Cue : MonoBehaviour
 		{
 			Vector3 finalForce = -hit.normal * force;
 			Ball ball = hit.transform.gameObject.GetComponentInParent<Ball>();
-			ball.Hit(finalForce);
+			Strike strike = new Strike() {Striker = _ball, Victim = ball, HitVector = finalForce};
+			ball.Hit(strike);
 			ballBody.AddForce(-finalForce * _ball.Stats[BallStat.KnockBack], ForceMode.VelocityChange);
 		}
 		else if (Physics.Raycast(ballBody.position, _dir, out hit, 3, wallMask))

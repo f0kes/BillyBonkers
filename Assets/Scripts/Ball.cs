@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DefaultNamespace;
 using DefaultNamespace.Enums;
 using Structures;
 using Structures.Structures;
@@ -7,12 +8,12 @@ using UnityEngine;
 
 public class Ball : MonoBehaviour
 {
-	private float _health;
-		
+	public float Health {  get; private set; }
+
 	[SerializeField] private List<EnumeratedStat> enumeratedStats;
 	private Rigidbody _rb;
 	public StatDict<BallStat> Stats = new StatDict<BallStat>();
-		
+
 	[Serializable]
 	public struct EnumeratedStat
 	{
@@ -27,17 +28,36 @@ public class Ball : MonoBehaviour
 			Stats.SetStat(stat.Name, stat.Value);
 		}
 
-		_health = Stats[BallStat.Health];
+		Health = Stats[BallStat.Health];
 		_rb = GetComponentInChildren<Rigidbody>();
 	}
 
-	public void Hit(Vector3 hitVector)
+	public virtual void Hit(Strike strike, bool addForce = true)
 	{
-		_rb.AddForce(hitVector, ForceMode.VelocityChange);
-		_health -= hitVector.magnitude;
-		if (_health <= 0)
+		if (addForce)
+		{
+			_rb.AddForce(strike.HitVector, ForceMode.VelocityChange);
+		}
+
+		Health -= strike.HitVector.magnitude;
+		if (Health <= 0)
 		{
 			Destroy(gameObject);
+		}
+	}
+
+	private void DealDamage(Strike strike)
+	{
+	}
+
+	protected virtual void OnCollisionEnter(Collision collision)
+	{
+		Ball other = collision.gameObject.GetComponentInParent<Ball>();
+		if (other != null)
+		{
+			Vector3 collSpeed = collision.impulse / Time.fixedDeltaTime;
+			Strike strike = new Strike() {Striker = this, Victim = other, HitVector = collSpeed};
+			other.Hit(strike,false);
 		}
 	}
 }
