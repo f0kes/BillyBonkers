@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DefaultNamespace;
-using DefaultNamespace.Enums;
+using Enums;
 using Structures;
 using Structures.Structures;
 using UnityEngine;
@@ -45,16 +45,15 @@ public class Ball : MonoBehaviour
 			Destroy(gameObject);
 		}
 	}
-
-	private void DealDamage(Strike strike)
-	{
-	}
+	
 
 	protected virtual void OnCollisionEnter(Collision collision)
 	{
 		Ball other = collision.gameObject.GetComponentInParent<Ball>();
+		Debug.Log("hit");
 		if (other != null)
 		{
+			
 			Vector3 collSpeed = collision.impulse / Time.fixedDeltaTime;
 			Strike strike = new Strike() {Striker = this, Victim = other, HitVector = collSpeed};
 			other.Hit(strike,false);

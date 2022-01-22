@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using DefaultNamespace;
-using DefaultNamespace.Enums;
+using Enums;
 using UnityEngine;
 
 public class Cue : MonoBehaviour
@@ -30,9 +30,9 @@ public class Cue : MonoBehaviour
 		AimAndPosition();
 	}
 
-	public void ProcessInput(PlayerInputHandler.BallInput input)
+	public void ProcessInput(PlayerInputHandler.PlayerInp inp)
 	{
-		if (input.Shoot)
+		if (inp.Shoot)
 		{
 			Charge(_dir);
 		}
@@ -84,8 +84,8 @@ public class Cue : MonoBehaviour
 		}
 		else if (Physics.Raycast(ballBody.position, _dir, out hit, 3, wallMask))
 		{
-			Vector3 finalForce = -hit.normal * force;
-			ballBody.AddForce(-finalForce, ForceMode.VelocityChange);
+			Vector3 finalForce = -_dir * force;
+			ballBody.AddForce(finalForce, ForceMode.VelocityChange);
 		}
 	}
 }

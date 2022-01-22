@@ -1,4 +1,4 @@
-﻿namespace DefaultNamespace.Enums
+﻿namespace Enums
 {
 	public enum BallStat
 	{

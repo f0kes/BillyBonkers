@@ -1,49 +1,52 @@
 using System;
 using DefaultNamespace;
-using DefaultNamespace.Enums;
+using Enums;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-	private Ball _ball;
+	public Ball Ball { get; private set; }
 	private Rigidbody _rb;
 	
 	[SerializeField] private Cue cue;
 	private PlayerInputHandler _inputHandler;
-	private PlayerInputHandler.BallInput _frameInput;
+	private PlayerInputHandler.PlayerInp _frameInp;
 
 	private void Awake()
 	{
 		_rb = gameObject.GetComponentInParent<Rigidbody>();
-		_inputHandler = gameObject.GetComponentInParent<PlayerInputHandler>();
-		_ball = GetComponentInParent<Ball>();
+		//_inputHandler = gameObject.GetComponentInParent<PlayerInputHandler>();
+		Ball = GetComponentInParent<Ball>();
 	}
 
 	private void FixedUpdate()
 	{
-		_frameInput = _inputHandler.GetFrameInput();
-		ProcessInput(_frameInput);
+		_frameInp = _inputHandler.GetFrameInput();
+		ProcessInput(_frameInp);
 		
 	}
 
-	
-	private void ProcessInput(PlayerInputHandler.BallInput input)
+	public void SetInputHandler(PlayerInputHandler handler)
 	{
-		Vector2 dir = new Vector2(input.XMove, input.ZMove);
+		_inputHandler = handler;
+	}
+	private void ProcessInput(PlayerInputHandler.PlayerInp inp)
+	{
+		Vector2 dir = new Vector2(inp.XMove, inp.ZMove);
 		AccelerateTowards(dir);
-		cue.ProcessInput(input);
+		cue.ProcessInput(inp);
 	}
 	
 
 	private void AccelerateTowards(Vector2 dir)
 	{
 		Vector3 rbVelocity = _rb.velocity;
-		Vector3 accel = new Vector3(dir.x, 0, dir.y) * _ball.Stats[BallStat.Acceleration];
+		Vector3 accel = new Vector3(dir.x, 0, dir.y) * Ball.Stats[BallStat.Acceleration];
 		Vector3 newVel = rbVelocity + accel * Time.deltaTime;
 		
 		rbVelocity = rbVelocity.magnitude * newVel.normalized;
 		
-		_rb.velocity = newVel.magnitude <= _ball.Stats[BallStat.Speed] ? newVel : rbVelocity;
+		_rb.velocity = newVel.magnitude <= Ball.Stats[BallStat.Speed] ? newVel : rbVelocity;
 	}
 
 	

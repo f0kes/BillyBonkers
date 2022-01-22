@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using DefaultNamespace.Enums;
 using Structures.Structures;
 
 namespace Structures

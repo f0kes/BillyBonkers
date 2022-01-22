@@ -1,4 +1,4 @@
-﻿using DefaultNamespace.Enums;
+﻿using Enums;
 using UnityEngine;
 
 namespace DefaultNamespace
