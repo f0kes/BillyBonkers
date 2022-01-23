@@ -7,6 +7,8 @@
 		Acceleration,
 		Speed,
 		KnockBack,
-		ChargeTime
+		ChargeTime,
+		CollisionDamageMultiplier,
+		DamageMultiplier,
 	}
 }

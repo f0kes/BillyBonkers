@@ -8,7 +8,8 @@ using UnityEngine;
 
 public class Ball : MonoBehaviour
 {
-	public float Health {  get; private set; }
+	public Action OnDeath;
+	public float Health { get; private set; }
 
 	[SerializeField] private List<EnumeratedStat> enumeratedStats;
 	private Rigidbody _rb;
@@ -39,24 +40,31 @@ public class Ball : MonoBehaviour
 			_rb.AddForce(strike.HitVector, ForceMode.VelocityChange);
 		}
 
-		Health -= strike.HitVector.magnitude;
+		Health -= strike.HitVector.magnitude * strike.DamageMultiplier;
 		if (Health <= 0)
 		{
-			Destroy(gameObject);
+			Die();
 		}
 	}
-	
 
-	protected virtual void OnCollisionEnter(Collision collision)
+	private void Die()
+	{
+		OnDeath?.Invoke();
+		Destroy(gameObject);
+	}
+
+	public virtual void CollisionFromChild(Collision collision)
 	{
 		Ball other = collision.gameObject.GetComponentInParent<Ball>();
-		Debug.Log("hit");
 		if (other != null)
 		{
-			
-			Vector3 collSpeed = collision.impulse / Time.fixedDeltaTime;
-			Strike strike = new Strike() {Striker = this, Victim = other, HitVector = collSpeed};
-			other.Hit(strike,false);
+			Vector3 collSpeed = collision.relativeVelocity;
+			Strike strike = new Strike()
+			{
+				Striker = this, Victim = other, HitVector = collSpeed,
+				DamageMultiplier = Stats[BallStat.CollisionDamageMultiplier]
+			};
+			other.Hit(strike, false);
 		}
 	}
 }

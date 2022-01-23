@@ -7,5 +7,6 @@ namespace DefaultNamespace
 		public Ball Striker;
 		public Ball Victim;
 		public Vector3 HitVector;
+		public float DamageMultiplier { get; set; }
 	}
 }

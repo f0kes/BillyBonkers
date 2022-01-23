@@ -44,7 +44,7 @@ namespace UI
 		{
 			if (_ballToCount.Health > 0)
 			{
-				text.text = "P" + _playerNumber + " " + _ballToCount.Health + "%";
+				text.text = "P" + _playerNumber + " " + Mathf.FloorToInt(_ballToCount.Health) + "%";
 			}
 			else
 			{

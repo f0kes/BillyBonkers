@@ -21,6 +21,7 @@ namespace GameState
 				if (unusedPlayers.Count > 0)
 				{
 					mover.SetInputHandler(unusedPlayers[0].inputHandler);
+					Debug.Log(unusedPlayers[0]);
 					unusedPlayers[0].SetBall(mover.Ball);
 					unusedPlayers.Remove(unusedPlayers[0]);
 				}

@@ -14,44 +14,44 @@ namespace UI
 	{
 		[SerializeField] private List<PlayerMenuRepresenter> playerMenuRepresenters = new List<PlayerMenuRepresenter>();
 		[SerializeField] private TextMeshProUGUI timer;
-		
+
 		private List<Player> _players = new List<Player>();
 		private Dictionary<Player, bool> _readyStates = new Dictionary<Player, bool>();
 
 		private void AddPlayer(Player player)
 		{
-			_players.Add(player);
-			_readyStates[player] = false;
-			player.inputHandler.OnShootPressed += () => { _readyStates[player] = !_readyStates[player]; };
+			if (!_players.Contains(player))
+			{
+				_players.Add(player);
+				_readyStates[player] = false;
+				player.inputHandler.OnShootPressed += () => { _readyStates[player] = !_readyStates[player]; };
+			}
 		}
 
 		public void OnPlayerJoin(PlayerInput input)
 		{
 			Player player = input.gameObject.GetComponent<Player>();
+
 			AddPlayer(player);
 		}
 
 		private void Start()
 		{
-			var players = FindObjectsOfType<Player>().ToList();
+			var players = Player.Players;
 			foreach (var player in players)
 			{
 				AddPlayer(player);
 			}
-			ReadyCheck(5f);
+
+			ReadyCheck(1f);
 		}
 
 
 		private void Update()
 		{
-			ReadInputs();
 			ShowPlayers();
 		}
 
-
-		private void ReadInputs()
-		{
-		}
 
 		private void ShowPlayers()
 		{
@@ -71,13 +71,13 @@ namespace UI
 		private async void ReadyCheck(float timeToWait)
 		{
 			float time = 0;
-			
+
 			while (time < timeToWait)
 			{
 				if (_readyStates.Values.All(x => x) && _players.Count > 1)
 				{
 					time += Time.deltaTime;
-					ShowTimer(Mathf.CeilToInt(timeToWait-time));
+					ShowTimer(Mathf.CeilToInt(timeToWait - time));
 				}
 				else
 				{

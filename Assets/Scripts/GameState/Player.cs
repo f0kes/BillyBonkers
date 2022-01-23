@@ -15,6 +15,11 @@ namespace GameState
 		public int PlayerId { get; private set; }
 		public int PlayerWins { get; private set; } = 0;
 
+		public bool RoundStarted { get; private set; } = false;
+		public bool Dead { get; private set; } = false;
+		
+		
+
 
 		void OnEnable()
 		{
@@ -33,11 +38,31 @@ namespace GameState
 		public void SetBall(Ball playerBall)
 		{
 			PlayerBall = playerBall;
+			PlayerBall.OnDeath += SetDead;
+			RoundStarted = true;
+		}
+
+		public void AddWin()
+		{
+			PlayerWins += 1;
 		}
 
 		void OnSceneUnloaded(Scene scene)
 		{
+			if (PlayerBall != null)
+			{
+				PlayerBall.OnDeath -= SetDead;
+			}
+
+			inputHandler.OnShootPressed = null;
 			PlayerBall = null;
+			RoundStarted = false;
+			Dead = false;
+		}
+
+		private void SetDead()
+		{
+			Dead = true;
 		}
 	}
 }

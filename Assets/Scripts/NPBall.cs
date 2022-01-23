@@ -1,32 +1,30 @@
 ﻿using Enums;
+using GameState;
+using Structures;
 using UnityEngine;
 
 namespace DefaultNamespace
 {
-	public class NpBall:Ball
+	public class NpBall: Ball
 	{
-		private Ball _owner;
-		public override void Hit(Strike strike, bool addForce = true)
+		public Ball Owner { get; private set; }
+		public override void CollisionFromChild(Collision collision)
 		{
-			_owner = strike.Striker;
-			base.Hit(strike, addForce);
+			Ball other = collision.gameObject.GetComponentInParent<Ball>();
+			if (other != null && other!=Owner)
+			{
+				base.CollisionFromChild(collision);
+			}
 		}
 
-		protected override void OnCollisionEnter(Collision collision)
+		public override void Hit(Strike strike, bool addForce = true)
 		{
-			if (_owner == null)
+			base.Hit(strike, addForce);
+			if (strike.Striker.gameObject.CompareTag("Player"))
 			{
-				base.OnCollisionEnter(collision);
-			}
-			else
-			{
-				Ball other = collision.gameObject.GetComponentInParent<Ball>();
-				if (other != null)
-				{
-					Vector3 collSpeed = collision.impulse / Time.fixedDeltaTime * Stats[BallStat.HitPower];
-					Strike strike = new Strike() {Striker = _owner, Victim = other, HitVector = collSpeed};
-					other.Hit(strike,false);
-				}
+				Owner = strike.Striker;
+				Debug.Log(Owner + " now is allowed to fuck me");
+				Stats.GetStat(BallStat.CollisionDamageMultiplier).AddMod(new StatModifierMultiply(5,1));
 			}
 		}
 	}

@@ -51,7 +51,10 @@ public class Cue : MonoBehaviour
 		transform.position = ballBody.position + _dir + Vector3.up * 0.5f + _chargeDisplacement;
 
 		Quaternion rotation = Quaternion.LookRotation(_dir, Vector3.up);
-		transform.rotation = rotation;
+		if (rotation != Quaternion.identity)
+		{
+			transform.rotation = rotation;
+		}
 	}
 
 	private void Charge(Vector3 dir)
@@ -77,9 +80,9 @@ public class Cue : MonoBehaviour
 		if (Physics.Raycast(ballBody.position, _dir, out hit, 3, ballMask))
 		{
 			Vector3 finalForce = -hit.normal * force;
-			Ball ball = hit.transform.gameObject.GetComponentInParent<Ball>();
-			Strike strike = new Strike() {Striker = _ball, Victim = ball, HitVector = finalForce};
-			ball.Hit(strike);
+			Ball victim = hit.transform.gameObject.GetComponentInParent<Ball>();
+			Strike strike = new Strike() {Striker = _ball, Victim = victim, HitVector = finalForce, DamageMultiplier = _ball.Stats[BallStat.DamageMultiplier]};
+			victim.Hit(strike);
 			ballBody.AddForce(-finalForce * _ball.Stats[BallStat.KnockBack], ForceMode.VelocityChange);
 		}
 		else if (Physics.Raycast(ballBody.position, _dir, out hit, 3, wallMask))
