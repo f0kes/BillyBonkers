@@ -12,18 +12,29 @@ public class PlayerMovement : MonoBehaviour
 	private PlayerInputHandler _inputHandler;
 	private PlayerInputHandler.PlayerInp _frameInp;
 
+	private bool _controlDisabled = false;
+
 	private void Awake()
 	{
 		_rb = gameObject.GetComponentInParent<Rigidbody>();
 		//_inputHandler = gameObject.GetComponentInParent<PlayerInputHandler>();
 		Ball = GetComponentInParent<Ball>();
+		Ball.OnDeath += DisableControl;
+	}
+
+	private void DisableControl()
+	{
+		_controlDisabled = true;
 	}
 
 	private void FixedUpdate()
 	{
-		_frameInp = _inputHandler.GetFrameInput();
-		ProcessInput(_frameInp);
-		
+		if (!_controlDisabled)
+		{
+			_frameInp = _inputHandler.GetFrameInput();
+			ProcessInput(_frameInp);
+		}
+
 	}
 
 	public void SetInputHandler(PlayerInputHandler handler)

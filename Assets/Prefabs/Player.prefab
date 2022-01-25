@@ -46,6 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputHandler: {fileID: 9189443253581633314}
+  Skin: {fileID: 11400000, guid: 7e7d44e56f7b8b84095e848bd701dc21, type: 2}
 --- !u!114 &9189443253581633315
 MonoBehaviour:
   m_ObjectHideFlags: 0

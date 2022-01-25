@@ -8,6 +8,7 @@ namespace GameState
 	public class Player : MonoBehaviour
 	{
 		[SerializeField] public PlayerInputHandler inputHandler;
+		[SerializeField] public Skin Skin;
 		public static List<Player> Players = new List<Player>();
 		private static int _playerCount = 0;
 
@@ -38,8 +39,14 @@ namespace GameState
 		public void SetBall(Ball playerBall)
 		{
 			PlayerBall = playerBall;
-			PlayerBall.OnDeath += SetDead;
+			PlayerBall.OnDeathEnd += SetDead;
+			PlayerBall.SetSkin(Skin);
 			RoundStarted = true;
+		}
+
+		public void ChangeSkin(Skin skin)
+		{
+			Skin = skin;
 		}
 
 		public void AddWin()
@@ -51,10 +58,11 @@ namespace GameState
 		{
 			if (PlayerBall != null)
 			{
-				PlayerBall.OnDeath -= SetDead;
+				PlayerBall.OnDeathEnd -= SetDead;
 			}
 
 			inputHandler.OnShootPressed = null;
+			inputHandler.OnMoveStarted = null;
 			PlayerBall = null;
 			RoundStarted = false;
 			Dead = false;

@@ -12,20 +12,37 @@ namespace UI
 {
 	public class MainMenu : MonoBehaviour
 	{
+		[SerializeField] private List<Skin> SkinList;
+		private List<Skin> _unusedSkins = new List<Skin>();
 		[SerializeField] private List<PlayerMenuRepresenter> playerMenuRepresenters = new List<PlayerMenuRepresenter>();
 		[SerializeField] private TextMeshProUGUI timer;
 
-		private List<Player> _players = new List<Player>();
-		private Dictionary<Player, bool> _readyStates = new Dictionary<Player, bool>();
+		private readonly List<Player> _players = new List<Player>();
+		private readonly Dictionary<Player, bool> _readyStates = new Dictionary<Player, bool>();
+
 
 		private void AddPlayer(Player player)
 		{
 			if (!_players.Contains(player))
 			{
 				_players.Add(player);
+				if (_unusedSkins.Count != 0)
+				{
+					player.ChangeSkin(_unusedSkins[0]);
+					_unusedSkins.Remove(_unusedSkins[0]);
+				}
+
 				_readyStates[player] = false;
 				player.inputHandler.OnShootPressed += () => { _readyStates[player] = !_readyStates[player]; };
+				player.inputHandler.OnMoveStarted += dir => { ChangeSkin(player, dir); };
 			}
+		}
+
+		private void ChangeSkin(Player player, Vector2 dir)
+		{
+			int currentIndex = SkinList.FindIndex(skin => skin == player.Skin);
+			int index = (currentIndex + 1) % SkinList.Count;
+			player.ChangeSkin(SkinList[index]);
 		}
 
 		public void OnPlayerJoin(PlayerInput input)
@@ -37,6 +54,7 @@ namespace UI
 
 		private void Start()
 		{
+			_unusedSkins = new List<Skin>(SkinList);
 			var players = Player.Players;
 			foreach (var player in players)
 			{

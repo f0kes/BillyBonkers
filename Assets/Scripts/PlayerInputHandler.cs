@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 public class PlayerInputHandler : MonoBehaviour
 {
 	public Action OnShootPressed;
+	public Action<Vector2> OnMoveStarted;
 
 	public struct PlayerInp
 	{
@@ -20,6 +21,10 @@ public class PlayerInputHandler : MonoBehaviour
 
 	public void OnMove(InputAction.CallbackContext context)
 	{
+		if (context.started)
+		{
+			OnMoveStarted?.Invoke(context.ReadValue<Vector2>());
+		}
 		Vector2 moveAxis = context.ReadValue<Vector2>();
 		_frameInp.XMove = moveAxis.x;
 		_frameInp.ZMove = moveAxis.y;

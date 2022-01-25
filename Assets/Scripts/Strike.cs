@@ -8,5 +8,7 @@ namespace DefaultNamespace
 		public Ball Victim;
 		public Vector3 HitVector;
 		public float DamageMultiplier { get; set; }
+
+		public float OverallDamage => DamageMultiplier * HitVector.magnitude;
 	}
 }
