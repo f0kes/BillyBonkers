@@ -1,32 +1,47 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Entities;
 using UnityEngine;
 
 public class Hole : MonoBehaviour
 {
 	[SerializeField] private LayerMask ballLayer;
+
 	private void OnTriggerEnter(Collider other)
 	{
-		
-		if ((ballLayer.value & (1 << other.gameObject.layer)) > 0)
+		Ball ball = other.gameObject.GetComponentInParent<Ball>();
+		if (ball != null)
 		{
 			GameObject[] floor = GameObject.FindGameObjectsWithTag("Floor");
 			foreach (var f in floor)
 			{
-				Physics.IgnoreCollision(other,f.GetComponent<Collider>(), true);
+				Physics.IgnoreCollision(other, f.GetComponent<Collider>(), true);
+			}
+
+			GravityController gravityController = ball.GetComponentInChildren<GravityController>();
+			if (gravityController != null)
+			{
+				gravityController.Fall();
 			}
 		}
 	}
 
 	private void OnTriggerExit(Collider other)
 	{
-		if ((ballLayer.value & (1 << other.gameObject.layer)) > 0)
+		Ball ball = other.gameObject.GetComponentInParent<Ball>();
+		if (ball != null)
 		{
 			GameObject[] floor = GameObject.FindGameObjectsWithTag("Floor");
 			foreach (var f in floor)
 			{
-				Physics.IgnoreCollision(other,f.GetComponent<Collider>(), false);
+				Physics.IgnoreCollision(other, f.GetComponent<Collider>(), false);
+			}
+
+			GravityController gravityController = ball.GetComponentInChildren<GravityController>();
+			if (gravityController != null)
+			{
+				gravityController.StopFalling();
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Entities;
 using GameState;
 using TMPro;
 using UnityEngine;
@@ -44,7 +45,8 @@ namespace UI
 		{
 			if (_ballToCount.Health > 0)
 			{
-				text.text = "P" + _playerNumber + " " + Mathf.FloorToInt(_ballToCount.Health) + "%";
+				text.text = "<color=#8c1f33>" + "P" + _playerNumber + " " + "</color>" +
+				            Mathf.FloorToInt(_ballToCount.Health) + "%";
 			}
 			else
 			{

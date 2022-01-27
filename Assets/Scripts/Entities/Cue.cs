@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using DefaultNamespace;
+using Entities;
 using Enums;
 using Unity.Mathematics;
 using UnityEngine;
@@ -52,9 +53,9 @@ public class Cue : MonoBehaviour
 		transform.position = ballBody.position + _dir + Vector3.up * 0.5f + _chargeDisplacement;
 
 		Quaternion rotation = quaternion.identity;
-		if (_dir != Vector3.zero)
+		Vector3 fixedDir = new Vector3(_dir.x, 0, _dir.z);
+		if (fixedDir != Vector3.zero)
 		{
-			Vector3 fixedDir = new Vector3(_dir.x, 0, _dir.z);
 			rotation = Quaternion.LookRotation(fixedDir, Vector3.up);
 		}
 
@@ -89,12 +90,9 @@ public class Cue : MonoBehaviour
 			Vector3 fixedNormal = new Vector3(hit.normal.x, 0, hit.normal.z);
 			Vector3 finalForce = -fixedNormal * force;
 			Ball victim = hit.transform.gameObject.GetComponentInParent<Ball>();
-			Strike strike = new Strike()
-			{
-				Striker = _ball, Victim = victim, HitVector = finalForce,
-				DamageMultiplier = _ball.Stats[BallStat.DamageMultiplier]
-			};
-			victim.Hit(strike);
+			Strike strike = new Strike(_ball, victim, finalForce, _ball.Stats[BallStat.DamageMultiplier],
+				StrikeSource.Cue);
+			victim.ApplyDamage(strike);
 			ballBody.AddForce(-finalForce * _ball.Stats[BallStat.KnockBack], ForceMode.VelocityChange);
 		}
 		else if (Physics.Raycast(ballBody.position, _dir, out hit, 3, wallMask))

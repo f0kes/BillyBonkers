@@ -1,4 +1,5 @@
 ﻿using DefaultNamespace;
+using Entities;
 using UnityEngine;
 
 namespace Visuals
@@ -22,7 +23,6 @@ namespace Visuals
 
 		private void ChangeOutLine(Ball ball)
 		{
-			Debug.Log("WOWSIE");
 			Material material = new Material(_renderer.material);
 			Color newColor = ball.Skin.mainColor*2;
 			material.SetColor(Emission, newColor);

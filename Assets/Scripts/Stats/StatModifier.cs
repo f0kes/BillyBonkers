@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Enums;
 
 namespace Structures
 {
@@ -17,7 +19,7 @@ namespace Structures
 
 		public virtual void ApplyMod(ref float finalStat, float baseValue)
 		{
-		//	finalStat = finalStat;
+			//	finalStat = finalStat;
 		}
 	}
 

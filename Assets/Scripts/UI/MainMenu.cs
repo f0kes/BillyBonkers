@@ -40,9 +40,12 @@ namespace UI
 
 		private void ChangeSkin(Player player, Vector2 dir)
 		{
-			int currentIndex = SkinList.FindIndex(skin => skin == player.Skin);
-			int index = (currentIndex + 1) % SkinList.Count;
-			player.ChangeSkin(SkinList[index]);
+			if (!_readyStates[player])
+			{
+				int currentIndex = SkinList.FindIndex(skin => skin == player.Skin);
+				int index = (currentIndex + 1) % SkinList.Count;
+				player.ChangeSkin(SkinList[index]);
+			}
 		}
 
 		public void OnPlayerJoin(PlayerInput input)

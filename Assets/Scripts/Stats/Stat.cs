@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using GameState;
 
 namespace Structures
 {
@@ -52,6 +53,13 @@ namespace Structures
 			{
 				return _lastValue;
 			}
+
+			public void AddTemporalMod(StatModifier mod, float time)
+			{
+				AddMod(mod);
+				TimeTicker.I.InvokeInTime(()=>{RemoveMod(mod);}, time);
+			}
+			
 			public void AddMod(StatModifier mod)
 			{
 				_modifiers.Add(mod);
