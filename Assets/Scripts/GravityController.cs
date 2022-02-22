@@ -8,18 +8,20 @@ public class GravityController : MonoBehaviour
 {
 	private Rigidbody _rb;
 	private float _gravityScale = -9.81f;
-	private float _defaultGravity = -9.81f;
+	[SerializeField]private float _defaultGravity = -9.81f;
 	private float _fallGravity = -100f;
 
 	private void Awake()
 	{
 		_rb = GetComponent<Rigidbody>();
 		_rb.useGravity = false;
+		SetGravityScale(_defaultGravity);
 	}
 
 
 	private void FixedUpdate()
 	{
+		
 		Vector3 gravity = _gravityScale * Vector3.up;
 		_rb.AddForce(gravity, ForceMode.Acceleration);
 	}

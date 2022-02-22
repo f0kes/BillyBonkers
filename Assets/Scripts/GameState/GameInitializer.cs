@@ -20,17 +20,22 @@ namespace GameState
 			List<Player> unusedPlayers = new List<Player>(Player.Players);
 			foreach (var mover in balls)
 			{
-				if (unusedPlayers.Count > 0)
-				{
-					mover.SetInputHandler(unusedPlayers[0].inputHandler);
-					cinemaChineTargetGroup.AddMember(mover.transform, 1, 4);
-					unusedPlayers[0].SetBall(mover.Ball);
-					unusedPlayers.Remove(unusedPlayers[0]);
-				}
-				else
-				{
-					Destroy(mover.transform.root.gameObject);
-				}
+				InitBall(unusedPlayers, mover, cinemaChineTargetGroup);
+			}
+		}
+
+		private static void InitBall(List<Player> unusedPlayers, PlayerMovement mover, CinemachineTargetGroup cinemaChineTargetGroup)
+		{
+			if (unusedPlayers.Count > 0)
+			{
+				mover.SetInputHandler(unusedPlayers[0].inputHandler);
+				cinemaChineTargetGroup.AddMember(mover.transform, 1, 4);
+				unusedPlayers[0].SetBall(mover.Ball);
+				unusedPlayers.Remove(unusedPlayers[0]);
+			}
+			else
+			{
+				Destroy(mover.transform.root.gameObject);
 			}
 		}
 	}

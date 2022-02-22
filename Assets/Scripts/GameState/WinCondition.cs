@@ -27,11 +27,38 @@ namespace GameState
 
 			if (playersAlive == 0)
 			{
-				finishMessage = new RoundFinishMessage(true, contender, RoundFinishType.Tie);
-				return true;	
+				finishMessage = new RoundFinishMessage(true, contender, RoundFinishType.Tie, "Tie");
+				return true;
 			}
-			finishMessage = new RoundFinishMessage(false, contender, RoundFinishType.OneSurvivor);
+
+			finishMessage = new RoundFinishMessage(false, contender, RoundFinishType.OneSurvivor, "One survivor left");
 			return true;
+		}
+	}
+
+	public class ScoreWinCondition : WinCondition
+	{
+		private int _scoreToWin;
+
+		public ScoreWinCondition(int scoreToWin)
+		{
+			_scoreToWin = scoreToWin;
+		}
+
+		public override bool Check(out RoundFinishMessage finishMessage)
+		{
+			foreach (var p in Player.Players.Where(p => p.RoundStarted && !p.Dead))
+			{
+				if (p.PlayerBall.ScoredBalls >= _scoreToWin)
+				{
+					finishMessage = new RoundFinishMessage(false, p, RoundFinishType.EnoughBalls,
+						"Enough balls were scored");
+					return true;
+				}
+			}
+
+			finishMessage = default;
+			return false;
 		}
 	}
 }

@@ -601,7 +601,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     randomizeRotationDirection: 0
-    maxNumParticles: 1000
+    maxNumParticles: 15
     size3D: 0
     rotation3D: 0
     gravityModifier:
@@ -4875,3 +4875,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47229bbca9d64c60a05f6ef8f5b6957f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _audioSource: {fileID: 0}
+  _audioClipsBall: []
+  _audioClipsCue: []

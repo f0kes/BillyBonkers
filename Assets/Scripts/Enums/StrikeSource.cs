@@ -2,7 +2,7 @@
 {
 	public enum StrikeSource
 	{
-		Ball,
+		Collision,
 		Cue
 	}
 }

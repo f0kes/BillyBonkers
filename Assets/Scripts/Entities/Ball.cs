@@ -25,6 +25,8 @@ namespace Entities
 		private Rigidbody _rb;
 		private GameObject _floor;
 
+		private bool _dead = false;
+
 		public Skin Skin { get; private set; }
 
 		[Serializable]
@@ -51,9 +53,9 @@ namespace Entities
 			OnSetSkin?.Invoke(skin);
 		}
 
-		public void ScoreBall()
+		public void AddScore(int score)
 		{
-			ScoredBalls += 1;
+			ScoredBalls += score;
 		}
 
 		public Vector3 GetPosition()
@@ -78,9 +80,13 @@ namespace Entities
 
 		protected virtual void Die()
 		{
-			OnDeath?.Invoke();
-			Destroy(gameObject, 1f);
-			TimeTicker.I.InvokeInTime((() => { OnDeathEnd?.Invoke(); }), 1f);
+			if (!_dead)
+			{
+				OnDeath?.Invoke();
+				_dead = true;
+				Destroy(gameObject, 1f);
+				TimeTicker.I.InvokeInTime((() => { OnDeathEnd?.Invoke(); }), 1f);
+			}
 		}
 
 		public virtual void CollisionFromChild(Collision collision)
@@ -91,7 +97,7 @@ namespace Entities
 			{
 				Vector3 collSpeed = collision.relativeVelocity;
 				Strike strike = new Strike(this, other, collSpeed, Stats[BallStat.CollisionDamageMultiplier],
-					StrikeSource.Ball);
+					StrikeSource.Collision);
 				other.ApplyDamage(strike, false);
 			}
 		}

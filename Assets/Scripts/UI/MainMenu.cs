@@ -7,12 +7,14 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using Random = UnityEngine.Random;
 
 namespace UI
 {
 	public class MainMenu : MonoBehaviour
 	{
 		[SerializeField] private List<Skin> SkinList;
+		[SerializeField] [Scene] private List<string> Levels;
 		private List<Skin> _unusedSkins = new List<Skin>();
 		[SerializeField] private List<PlayerMenuRepresenter> playerMenuRepresenters = new List<PlayerMenuRepresenter>();
 		[SerializeField] private TextMeshProUGUI timer;
@@ -119,7 +121,10 @@ namespace UI
 
 		private void StartRound()
 		{
-			SceneManager.LoadScene(1);
+			int randLevel = Random.Range(0, Levels.Count);
+			string levelName = Levels[randLevel];
+			SceneManager.LoadScene(levelName);
+			//SceneManager.LoadScene(1);
 		}
 
 		private void ShowTimer(float time)

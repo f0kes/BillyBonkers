@@ -26,11 +26,8 @@ namespace UI
 			var players = Player.Players;
 			foreach (var player in players)
 			{
-				if (!_usedPlayers.Contains(player))
+				if (FindPlayerToCount(player))
 				{
-					_usedPlayers.Add(player);
-					_ballToCount = player.PlayerBall;
-					_playerNumber = player.PlayerId;
 					break;
 				}
 			}
@@ -40,8 +37,27 @@ namespace UI
 				gameObject.SetActive(false);
 			}
 		}
-
 		private void Update()
+		{
+			UpdatePlayerText();
+		}
+
+		private bool FindPlayerToCount(Player player)
+		{
+			if (!_usedPlayers.Contains(player))
+			{
+				_usedPlayers.Add(player);
+				_ballToCount = player.PlayerBall;
+				_playerNumber = player.PlayerId;
+				return true;
+			}
+
+			return false;
+		}
+
+		
+
+		private void UpdatePlayerText()
 		{
 			if (_ballToCount.Health > 0)
 			{

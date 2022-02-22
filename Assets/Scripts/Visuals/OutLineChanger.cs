@@ -24,7 +24,7 @@ namespace Visuals
 		private void ChangeOutLine(Ball ball)
 		{
 			Material material = new Material(_renderer.material);
-			Color newColor = ball.Skin.mainColor*2;
+			Color newColor = ball.Skin.mainColor*3.5f;
 			material.SetColor(Emission, newColor);
 			_renderer.material = material;
 			_fixer.Fix();

@@ -42,7 +42,7 @@ namespace Particles
 		private void MakeSound(Strike strike)
 		{
 			AudioClip toPlay = GetStrikeSound(strike);
-			float soundVolume = Sigmoid(strike.OverallDamage/30, xzero: 1);
+			float soundVolume = Mathf.Min(1,strike.OverallDamage/40);
 			_audioSource.PlayOneShot(toPlay, soundVolume);
 			
 		}
@@ -53,7 +53,7 @@ namespace Particles
 			int numSound;
 			switch (strike.Source)
 			{
-				case StrikeSource.Ball:
+				case StrikeSource.Collision:
 					numSound = Random.Range(0, _audioClipsBall.Count);
 					strikeSound = _audioClipsBall[numSound];
 					break;

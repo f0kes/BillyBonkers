@@ -14,7 +14,6 @@ namespace Entities
 		public Action<Ball> OnChangeOwner;
 		public List<Effect> effects = new List<Effect>();
 		public Ball Owner { get; private set; }
-		private bool _damageIncreased = false;
 
 		public override void CollisionFromChild(Collision collision)
 		{
@@ -38,11 +37,15 @@ namespace Entities
 		public override void ApplyDamage(Strike strike, bool addForce = true)
 		{
 			base.ApplyDamage(strike, addForce);
-			ChangeOwner(strike.Striker);
+			if (strike.Source != StrikeSource.Collision)
+			{
+				ChangeOwner(strike.Striker);
+			}
 		}
 
 		private void ChangeOwner(Ball owner)
 		{
+			
 			Ball newOwner;
 			if (owner is NpBall npBall)
 			{
@@ -55,22 +58,16 @@ namespace Entities
 
 			if (newOwner != Owner && newOwner!=null)
 			{
+				Debug.Log(newOwner);
 				Owner = newOwner;
-				OnChangeOwner?.Invoke(owner);
-				if (!_damageIncreased)
-				{
-					Stats.GetStat(BallStat.CollisionDamageMultiplier).AddMod(new StatModifierMultiply(5, 1));
-					_damageIncreased = true;
-				}
+				OnChangeOwner?.Invoke(Owner);
 			}
 		}
 
+		
+
 		protected override void Die()
 		{
-			if (Owner != null)
-			{
-				Owner.ScoreBall();
-			}
 			base.Die();
 		}
 	}

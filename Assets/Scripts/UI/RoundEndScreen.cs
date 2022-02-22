@@ -17,25 +17,8 @@ namespace UI
 		[SerializeField] private Animator _toWait;
 		public void ShowRoundResults(RoundFinishMessage message)
 		{
-			string conText;
-			switch (message.Type)
-			{
-				case RoundFinishType.OneSurvivor:
-					conText="One survivor left";
-					break;
-				case RoundFinishType.EnoughBalls:
-					conText="Enough balls were scored";
-					break;
-				case RoundFinishType.TimeOut:
-					conText = "Time is Out!!";
-					break;
-				case RoundFinishType.Tie:
-					conText = "Tie";
-					break;
-				default:
-					throw new ArgumentOutOfRangeException();
-			}
-			condition.text = conText;
+
+			condition.text = message.Context;
 			if (message.Tie == false)
 			{
 				winner.text = "P" + message.Winner.PlayerId + " Wins";

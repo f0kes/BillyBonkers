@@ -25,7 +25,7 @@ public class PlayerInputHandler : MonoBehaviour
 		{
 			OnMoveStarted?.Invoke(context.ReadValue<Vector2>());
 		}
-		Vector2 moveAxis = context.ReadValue<Vector2>();
+		Vector2 moveAxis = Vector2.ClampMagnitude(context.ReadValue<Vector2>(), 1f); ;
 		_frameInp.XMove = moveAxis.x;
 		_frameInp.ZMove = moveAxis.y;
 	}

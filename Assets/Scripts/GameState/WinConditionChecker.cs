@@ -16,10 +16,11 @@ namespace GameState
 			_conditions.Add(condition);
 		}
 
-		//tochange
+		//to change
 		private void Awake()
 		{
 			AddWinCondition(new OneSurvivorWinCondition());
+			AddWinCondition(new ScoreWinCondition(10));
 		}
 
 		private void Update()
