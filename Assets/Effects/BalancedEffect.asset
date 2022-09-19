@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9735d4e240a548498afd3e7f4572a802, type: 3}
+  m_Name: BalancedEffect
+  m_EditorClassIdentifier: 
+  statToChange: 0
+  statsToChange:
+  - ToChange: 0
+    Value: 10
+  - ToChange: 1
+    Value: 30
+  - ToChange: 2
+    Value: 5
+  - ToChange: 3
+    Value: 5
+  - ToChange: 4
+    Value: 0
+  - ToChange: 5
+    Value: 0
+  - ToChange: 6
+    Value: 0.2
+  - ToChange: 7
+    Value: 0
+  iconStart: {fileID: 4499776581502274470, guid: 77a9b29271a958d41b4d31241c731a12, type: 3}
+  iconFinish: {fileID: 2044659610401571255, guid: 034d02eaf1db1214b803320d9c3a6c3c, type: 3}
+  value: 1
+  time: 10
