@@ -8,7 +8,7 @@ using UnityEngine.Serialization;
 
 namespace NPBallEffect
 {
-	[CreateAssetMenu(fileName = "New Increase Damage Effect", menuName = "Damage Effect", order = 2)]
+	[CreateAssetMenu(fileName = "New Increase Damage NPBallEffect", menuName = "Damage NPBallEffect", order = 2)]
 	public class IncreasedHitDamage : Effect
 	{
 		[SerializeField] private int bonusDamage;

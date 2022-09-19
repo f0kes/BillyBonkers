@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DefaultNamespace;
 using Entities;
 using Enums;
+using GameState;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -32,7 +33,7 @@ public class Cue : MonoBehaviour
 		AimAndPosition();
 	}
 
-	public void ProcessInput(PlayerInputHandler.PlayerInp inp)
+	public void ProcessInput(PlayerInp inp)
 	{
 		if (inp.Shoot)
 		{
@@ -67,7 +68,7 @@ public class Cue : MonoBehaviour
 
 	private void Charge(Vector3 dir)
 	{
-		_currentChargeTime += Time.deltaTime;
+		_currentChargeTime += TimeTicker.TickInterval;
 		if (_currentChargeTime > _ball.Stats[BallStat.ChargeTime])
 		{
 			_currentChargeTime = _ball.Stats[BallStat.ChargeTime];

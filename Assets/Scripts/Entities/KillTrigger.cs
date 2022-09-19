@@ -9,7 +9,7 @@ public class KillTrigger : MonoBehaviour
 	private void OnTriggerEnter(Collider other)
 	{
 		Ball ball = other.gameObject.GetComponentInParent<Ball>();
-		if (other != null)
+		if (ball != null)
 		{
 			ball.KillTrigger(this);
 		}

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Cinemachine;
+using Steamworks;
 using UnityEngine;
 
 namespace GameState
@@ -15,16 +16,17 @@ namespace GameState
 
 		public void Init()
 		{
-			var balls = FindObjectsOfType<PlayerMovement>().ToList();
+			var balls = FindObjectsOfType<BallMovement>().ToList().Where((x)=>x.IsPlayer);
 			var cinemaChineTargetGroup = FindObjectOfType<CinemachineTargetGroup>();
 			List<Player> unusedPlayers = new List<Player>(Player.Players);
 			foreach (var mover in balls)
 			{
 				InitBall(unusedPlayers, mover, cinemaChineTargetGroup);
 			}
+			
 		}
 
-		private static void InitBall(List<Player> unusedPlayers, PlayerMovement mover, CinemachineTargetGroup cinemaChineTargetGroup)
+		private static void InitBall(List<Player> unusedPlayers, BallMovement mover, CinemachineTargetGroup cinemaChineTargetGroup)
 		{
 			if (unusedPlayers.Count > 0)
 			{

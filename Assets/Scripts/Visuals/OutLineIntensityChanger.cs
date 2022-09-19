@@ -1,30 +1,27 @@
-﻿using DefaultNamespace;
-using Entities;
+﻿using Entities;
 using UnityEngine;
 
 namespace Visuals
 {
-	[RequireComponent(typeof(ChangeMaterialsRenderQueue))]
-	[RequireComponent(typeof(MeshRenderer))]
-	public class OutLineChanger : MonoBehaviour
+	public class OutLineIntensityChanger : MonoBehaviour
 	{
-		private NpBall _ball;
+		private Ball _ball;
 		private MeshRenderer _renderer;
 		private ChangeMaterialsRenderQueue _fixer;
 		private static readonly int Emission = Shader.PropertyToID("_emission");
 
 		private void Awake()
 		{
-			_ball = GetComponentInParent<NpBall>();
+			_ball = GetComponentInParent<Ball>();
 			_renderer = GetComponent<MeshRenderer>();
 			_fixer = GetComponent<ChangeMaterialsRenderQueue>();
-			_ball.OnChangeOwner += ChangeOutLine;
+			_ball.OnOutlineIntensityChange += ChangeOutLine;
 		}
 
-		private void ChangeOutLine(Ball ball)
+		private void ChangeOutLine(float intensity)
 		{
 			Material material = new Material(_renderer.material);
-			Color newColor = ball.Skin.mainColor*3.5f;
+			Color newColor = _ball.Skin.mainColor*intensity;
 			material.SetColor(Emission, newColor);
 			_renderer.material = material;
 			_fixer.Fix();

@@ -54,8 +54,9 @@ MonoBehaviour:
   - Name: 7
     Value:
       baseValue: 2
+  DamageOwner: 0
   effects:
-  - {fileID: 11400000, guid: b25c7b571642ec049a4fe917c25c33ca, type: 2}
+  - {fileID: 11400000, guid: e97d152dc953cd8489c9be208f2ce8f5, type: 2}
   - {fileID: 11400000, guid: 200691edfec532b42b062f3cfebeb114, type: 2}
 --- !u!1 &1944280231159663997
 GameObject:
@@ -343,8 +344,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 1
-      minScalar: 0.1
+      scalar: 2
+      minScalar: 0.3
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -1034,7 +1035,7 @@ ParticleSystem:
       countCurve:
         serializedVersion: 2
         minMaxState: 0
-        scalar: 150
+        scalar: 20
         minScalar: 30
         maxCurve:
           serializedVersion: 2

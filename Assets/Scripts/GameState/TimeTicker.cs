@@ -6,6 +6,8 @@ namespace GameState
 {
 	public class TimeTicker : MonoBehaviour
 	{
+		public static TimeTicker I;
+
 		public class OnTickEventArgs : EventArgs
 		{
 			public int Tick;
@@ -16,29 +18,38 @@ namespace GameState
 			public float DeltaTime;
 		}
 
+		[SerializeField] private static float _tickRate = 60f;
+		public static float TickInterval => 1f / _tickRate;
+		private float _currentTickTime = 0f;
 
-		public static TimeTicker I;
-		private int _tick;
+		private int _currentTick;
 
-		public static event EventHandler<OnTickEventArgs> OnTick;
-		public static event EventHandler<OnTickEventArgs> OnTickEnd;
+		public int CurrentTick
+		{
+			get => _currentTick;
+			set => _currentTick = value;
+		}
+
+		public static event Action<OnTickEventArgs> OnTick;
+		public static event Action<OnTickEventArgs> OnTickEnd;
 		public static event EventHandler<OnUpdateEventArgs> OnUpdate;
 
 		public async void InvokeInTime(Action toInvoke, float time)
 		{
 			float timePassed = 0;
 			OnUpdate += delegate(object sender, OnUpdateEventArgs args) { timePassed += args.DeltaTime; };
-			while (timePassed<time)
+			while (timePassed < time)
 			{
 				await Task.Yield();
 			}
+
 			toInvoke.Invoke();
 		}
 
-       
+
 		private void Awake()
 		{
-			_tick = 0;
+			_currentTick = 0;
 			if (I == null)
 			{
 				I = this;
@@ -51,10 +62,31 @@ namespace GameState
 
 		private void Update()
 		{
-			_tick++;
-			OnTick?.Invoke(this, new OnTickEventArgs {Tick = _tick});
-			OnTickEnd?.Invoke(this, new OnTickEventArgs {Tick = _tick});
+			_currentTickTime += Time.deltaTime;
+			while (_currentTickTime >= TickInterval)
+			{
+				_currentTickTime -= TickInterval;
+				Tick();
+			}
+
 			OnUpdate?.Invoke(this, new OnUpdateEventArgs {DeltaTime = Time.deltaTime});
+		}
+
+
+		public void Tick()
+		{
+			_currentTick++;
+			OnTick?.Invoke(new OnTickEventArgs {Tick = _currentTick});
+			OnTickEnd?.Invoke(new OnTickEventArgs {Tick = _currentTick});
+			Physics.Simulate(TickInterval);
+		}
+		public static float TicksToSeconds(int ticks)
+		{
+			return ticks * TickInterval;
+		}
+		public static int SecondsToTicks(float seconds)
+		{
+			return (int) (seconds / TickInterval);
 		}
 	}
 }

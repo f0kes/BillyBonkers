@@ -451,10 +451,20 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3be3a51c2191424439bb3db3de5bdd33, type: 2}
   - {fileID: 11400000, guid: de137fcd19a2d474f81d01ef734cb69e, type: 2}
   Levels:
-  - PoolInfinite
-  - PoolKing
-  - ShootingRange
-  - MovingHoles
+  - Level: CockRoachAttack
+    On: 0
+  - Level: MovingHoles
+    On: 0
+  - Level: PoolInfinite
+    On: 0
+  - Level: PoolKing
+    On: 0
+  - Level: ShootingRange
+    On: 1
+  - Level: BattleRoyale
+    On: 0
+  - Level: Zones
+    On: 0
   playerMenuRepresenters:
   - {fileID: 1483301349}
   - {fileID: 375827814}

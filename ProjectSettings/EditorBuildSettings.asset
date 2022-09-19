@@ -20,5 +20,14 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MovingHoles.unity
     guid: c188936635fe25e499de61f3e22db9d8
+  - enabled: 1
+    path: Assets/Scenes/CockRoachAttack.unity
+    guid: 6eed52772b95d6e4bbeed05d7e94da5a
+  - enabled: 1
+    path: Assets/Scenes/BattleRoyale.unity
+    guid: d00681d058b0bc744836eb6d0312a111
+  - enabled: 1
+    path: Assets/Scenes/Zones.unity
+    guid: 053ab68743f3746478bc4a2aebbd7b3b
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 0d15128032ebce348ae93af52a820107, type: 2}

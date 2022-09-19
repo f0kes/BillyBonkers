@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Entities;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Visuals;
 
 namespace GameState
 {

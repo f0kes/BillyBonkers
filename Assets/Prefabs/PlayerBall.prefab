@@ -88,6 +88,7 @@ GameObject:
   - component: {fileID: 6803766203037772706}
   - component: {fileID: 6036246519540453537}
   - component: {fileID: 6073920747183852192}
+  - component: {fileID: 7747539304883302427}
   m_Layer: 6
   m_Name: BallPhys
   m_TagString: Player
@@ -137,7 +138,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
+  - {fileID: 2100000, guid: 1541adc483d8b26419074b843c59f89d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -249,6 +250,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e3ab9996a5aebb74781d4cad1864b364, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _defaultGravity: -9.81
+--- !u!114 &7747539304883302427
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8650932491742409702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21af4dcab28b4991b0a333725f68e304, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &5462785748548551140

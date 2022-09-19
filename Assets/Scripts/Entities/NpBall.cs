@@ -12,17 +12,19 @@ namespace Entities
 	public class NpBall : Ball
 	{
 		public Action<Ball> OnChangeOwner;
-		public List<Effect> effects = new List<Effect>();
+		public bool DamageOwner = false;
+		public List<NPBallEffect.Effect> effects = new List<NPBallEffect.Effect>();
 		public Ball Owner { get; private set; }
 
 		public override void CollisionFromChild(Collision collision)
 		{
 			Ball other = collision.gameObject.GetComponentInParent<Ball>();
-			if (other != null && other != Owner)
+			if (other != null && (other != Owner || DamageOwner))
 			{
 				base.CollisionFromChild(collision);
 				ChangeOwner(other);
 			}
+			
 		}
 
 		protected override void Awake()
@@ -45,7 +47,6 @@ namespace Entities
 
 		private void ChangeOwner(Ball owner)
 		{
-			
 			Ball newOwner;
 			if (owner is NpBall npBall)
 			{
@@ -58,7 +59,6 @@ namespace Entities
 
 			if (newOwner != Owner && newOwner!=null)
 			{
-				Debug.Log(newOwner);
 				Owner = newOwner;
 				OnChangeOwner?.Invoke(Owner);
 			}

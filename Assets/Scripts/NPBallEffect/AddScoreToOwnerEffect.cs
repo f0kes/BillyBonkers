@@ -8,7 +8,7 @@ using UnityEngine.Serialization;
 
 namespace NPBallEffect
 {
-	[CreateAssetMenu(fileName = "New Score Effect", menuName = "Score Effect", order = 2)]
+	[CreateAssetMenu(fileName = "New Score NPBallEffect", menuName = "Score NPBallEffect", order = 2)]
 	public class AddScoreToOwnerEffect : Effect
 	{
 		[SerializeField] private int score;
