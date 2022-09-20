@@ -23,7 +23,6 @@ namespace GameState
 			{
 				InitBall(unusedPlayers, mover, cinemaChineTargetGroup);
 			}
-			
 		}
 
 		private static void InitBall(List<Player> unusedPlayers, BallMovement mover, CinemachineTargetGroup cinemaChineTargetGroup)
