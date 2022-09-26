@@ -5,12 +5,12 @@ namespace GameState
 {
 	public abstract class WinCondition
 	{
-		public abstract bool Check(out RoundFinishMessage finishMessage);
+		public abstract bool IsSatisfied(out RoundFinishMessage finishMessage);
 	}
 
 	public class OneSurvivorWinCondition : WinCondition
 	{
-		public override bool Check(out RoundFinishMessage finishMessage)
+		public override bool IsSatisfied(out RoundFinishMessage finishMessage)
 		{
 			int playersAlive = 0;
 			Player contender = null;
@@ -45,7 +45,7 @@ namespace GameState
 			_scoreToWin = scoreToWin;
 		}
 
-		public override bool Check(out RoundFinishMessage finishMessage)
+		public override bool IsSatisfied(out RoundFinishMessage finishMessage)
 		{
 			foreach (var p in Player.Players.Where(p => p.RoundStarted && !p.Dead))
 			{

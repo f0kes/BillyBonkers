@@ -5,8 +5,11 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/MainMenu.unity
+    guid: 8f0a22ee879aad744a7641ab8f52806f
+  - enabled: 1
+    path: Assets/Scenes/Lobby.unity
     guid: 02f6fd5d0aa611f4dbb6469f4a975e24
   - enabled: 1
     path: Assets/Scenes/PoolInfinite.unity

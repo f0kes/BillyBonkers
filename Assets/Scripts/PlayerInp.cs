@@ -1,4 +1,6 @@
-﻿public struct PlayerInp
+﻿using UnityEngine;
+
+public struct PlayerInp
 {
 	public PlayerInp(PlayerInp inp)
 	{
@@ -6,11 +8,13 @@
 		XMove = inp.XMove;
 		ZMove = inp.ZMove;
 		Shoot = inp.Shoot;
-		ShootReleased = false;
+		ShootReleased = inp.ShootReleased;
+		MoveStarted = inp.MoveStarted;
 	}
 	public int Tick;
 	public float XMove;
 	public float ZMove;
 	public bool Shoot;
 	public bool ShootReleased;
+	public Vector2 MoveStarted;
 }

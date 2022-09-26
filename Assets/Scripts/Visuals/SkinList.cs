@@ -1,9 +1,30 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Visuals;
 
-public class SkinList : MonoBehaviour
+namespace Visuals
 {
-    public List<Skin> Skins;
+	public class SkinList : MonoBehaviour
+	{
+		public static SkinList I;
+		public  List<Skin> Skins;
+
+		private void Awake()
+		{
+			if(I!=null)
+				Destroy(this);
+			else
+				I = this;
+		}
+
+		private void Start()
+		{
+				
+		}
+
+		public  Skin GetSkin(int index)
+		{
+			return Skins[index];
+		}
+	}
 }

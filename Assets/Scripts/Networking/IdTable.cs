@@ -11,8 +11,10 @@ namespace Networking
 		private static readonly Dictionary<T, ushort> ReverseTable =
 			new Dictionary<T, ushort>();
 
-		private static ushort NextId { get; set; }
-		
+		private static ushort _nextId { get; set; }
+
+		public static ushort MaxId => _nextId;
+
 		public static void TryGetValue(ushort id, out T value)
 		{
 			Table.TryGetValue(id, out value);
@@ -22,16 +24,17 @@ namespace Networking
 		{
 			return Table[id];
 		}
-		
-		public static void Add(T value)
+
+		public static ushort Add(T value)
 		{
 			if (Table.ContainsValue(value))
-				return;
+				return ReverseTable[value];
 
-			Table.Add(NextId, value);
-			ReverseTable.Add(value, NextId);
+			Table.Add(_nextId, value);
+			ReverseTable.Add(value, _nextId);
 
-			NextId++;
+			_nextId++;
+			return (ushort) (_nextId - 1);
 		}
 
 		public static void Remove(T value)
@@ -52,7 +55,7 @@ namespace Networking
 		{
 			Table.Clear();
 			ReverseTable.Clear();
-			NextId = 0;
+			_nextId = 0;
 		}
 
 		public static List<T> GetValues()

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DefaultNamespace;
 using Enums;
 using GameState;
+using Mirror;
 using Networking;
 using Structures;
 using Structures.Structures;
@@ -11,8 +12,10 @@ using Visuals;
 
 namespace Entities
 {
-	public class Ball : NetworkBehaviour
+	public class Ball : NetworkEntity
 	{
+		#region Events
+
 		public Action OnDeath;
 		public Action OnDeathEnd;
 		public Action<Strike> OnHit;
@@ -20,6 +23,8 @@ namespace Entities
 		public Action<Skin> OnSetSkin;
 		public Action<float> OnOutlineIntensityChange;
 
+		#endregion
+		
 		public StatDict<BallStat> Stats = new StatDict<BallStat>();
 		public float Health { get; private set; }
 		public int ScoredBalls { get; private set; }
@@ -29,7 +34,7 @@ namespace Entities
 		private GameObject _floor;
 
 		private bool _dead = false;
-		
+
 		public float OutlineIntensity { get; private set; }
 
 		public Skin Skin { get; private set; }
@@ -76,7 +81,8 @@ namespace Entities
 		public override void Deserialize(Message message)
 		{
 			var position = new Vector3(message.GetFloat(), message.GetFloat(), message.GetFloat());
-			var rotation = new Quaternion(message.GetFloat(), message.GetFloat(), message.GetFloat(), message.GetFloat());
+			var rotation = new Quaternion(message.GetFloat(), message.GetFloat(), message.GetFloat(),
+				message.GetFloat());
 			var velocity = new Vector3(message.GetFloat(), message.GetFloat(), message.GetFloat());
 			var angularVelocity = new Vector3(message.GetFloat(), message.GetFloat(), message.GetFloat());
 			Health = message.GetFloat();
@@ -107,7 +113,7 @@ namespace Entities
 		{
 			return _rb != null ? _rb.position : Vector3.zero;
 		}
-		
+
 		public virtual void ApplyDamage(Strike strike, bool addForce = true)
 		{
 			OnHit?.Invoke(strike);
@@ -122,15 +128,15 @@ namespace Entities
 				Die();
 			}
 		}
-
 		protected virtual void Die()
 		{
 			if (!_dead)
 			{
 				OnDeath?.Invoke();
 				_dead = true;
-				Destroy(gameObject, 1f);
+				
 				TimeTicker.I.InvokeInTime((() => { OnDeathEnd?.Invoke(); }), 1f);
+				TimeTicker.I.InvokeInTime((() => { NetworkServer.Destroy(gameObject); }), 1f);
 			}
 		}
 

@@ -10,6 +10,7 @@ namespace GameState
 		private List<WinCondition> _conditions = new List<WinCondition>();
 		[SerializeField] private RoundEndScreen _endScreenToSpawn;
 		private bool _roundFinished = false;
+		private bool _roundStarted = false;
 
 		public void AddWinCondition(WinCondition condition)
 		{
@@ -21,19 +22,28 @@ namespace GameState
 		{
 			AddWinCondition(new OneSurvivorWinCondition());
 			AddWinCondition(new ScoreWinCondition(10));
+			TimeTicker.OnTick += OnTick;
 		}
 
-		private void Update()
+		private void OnDisable()
 		{
-			if (!_roundFinished)
+			TimeTicker.OnTick -= OnTick;
+		}
+
+		private void Start()
+		{
+			//_roundStarted = true;
+		}
+
+		private void OnTick(TimeTicker.OnTickEventArgs args)
+		{
+			if (_roundFinished || !_roundStarted) return;
+			foreach (var condition in _conditions)
 			{
-				foreach (var con in _conditions)
+				RoundFinishMessage message;
+				if (condition.IsSatisfied(out message))
 				{
-					RoundFinishMessage message;
-					if (con.Check(out message))
-					{
-						InitializeRoundFinish(message);
-					}
+					InitializeRoundFinish(message);
 				}
 			}
 		}

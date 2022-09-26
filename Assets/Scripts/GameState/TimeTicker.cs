@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Mirror;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace GameState
 {
-	public class TimeTicker : MonoBehaviour
+	public class TimeTicker : NetworkBehaviour
 	{
 		public static TimeTicker I;
 
@@ -23,7 +25,8 @@ namespace GameState
 		private float _currentTickTime = 0f;
 
 		private int _currentTick;
-
+		
+		private bool _isPaused = false;
 		public int CurrentTick
 		{
 			get => _currentTick;
@@ -53,6 +56,8 @@ namespace GameState
 			if (I == null)
 			{
 				I = this;
+				DontDestroyOnLoad(this);
+				
 			}
 			else
 			{
@@ -60,8 +65,16 @@ namespace GameState
 			}
 		}
 
+		public override void OnStartClient()
+		{
+			base.OnStartClient();
+			_currentTick = 0;
+			Unpause();
+		}
+
 		private void Update()
 		{
+			if(_isPaused) return;
 			_currentTickTime += Time.deltaTime;
 			while (_currentTickTime >= TickInterval)
 			{
@@ -72,13 +85,28 @@ namespace GameState
 			OnUpdate?.Invoke(this, new OnUpdateEventArgs {DeltaTime = Time.deltaTime});
 		}
 
+		public void Reset()
+		{
+			_currentTick = 0;
+		}
 
-		public void Tick()
+		public void Pause()
+		{
+			_isPaused = true;
+		}
+		public void Unpause()
+		{
+			_isPaused = false;
+		}
+
+		public void Tick(bool simulating = false)
 		{
 			_currentTick++;
 			OnTick?.Invoke(new OnTickEventArgs {Tick = _currentTick});
 			OnTickEnd?.Invoke(new OnTickEventArgs {Tick = _currentTick});
 			Physics.Simulate(TickInterval);
+			if(simulating) return;
+			InputSystem.Update();
 		}
 		public static float TicksToSeconds(int ticks)
 		{

@@ -4,6 +4,7 @@ using Entities;
 using Enums;
 using GameState;
 using Interfaces;
+using Networking;
 using UnityEngine;
 
 public class BallMovement : MonoBehaviour
@@ -16,7 +17,7 @@ public class BallMovement : MonoBehaviour
 	private IInputHandler _inputHandler;
 	private PlayerInp _frameInp;
 
-	private bool _controlDisabled = false;
+	private bool _controlDisabled = true;
 
 	private void Awake()
 	{
@@ -24,7 +25,7 @@ public class BallMovement : MonoBehaviour
 		//_inputHandler = gameObject.GetComponentInParent<PlayerInputHandler>();
 		Ball = GetComponentInParent<Ball>();
 		Ball.OnDeath += DisableControl;
-		
+		IdTable<BallMovement>.Add(this);
 	}
 
 	private void Start()
@@ -54,6 +55,7 @@ public class BallMovement : MonoBehaviour
 	public void SetInputHandler(IInputHandler handler)
 	{
 		_inputHandler = handler;
+		_controlDisabled = false;
 	}
 
 	private void ProcessInput(PlayerInp inp)
