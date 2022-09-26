@@ -16,19 +16,19 @@ namespace Networking
 		private List<PlayerInputHandler> _inputHandlers = new List<PlayerInputHandler>();
 
 		//TODO convert to dictionary
-		private readonly Message[][]
-			_stateCache = new Message[StateCacheSize][]; // [tick][networkBehaviourIndex]
+		private readonly Snapshot[]
+			_stateCache = new Snapshot[StateCacheSize]; // [tick][networkBehaviourIndex]
 
 		private readonly PlayerInp[][]
 			_inputCache = new PlayerInp[StateCacheSize][]; // [tick][InputHandlerIndex]
-		
+
 		private int _lastReceivedTick;
 
 		private void Start()
 		{
 			for (var i = 0; i < StateCacheSize; i++)
 			{
-				_stateCache[i] = new Message[MaxNetworkBehaviours];
+				_stateCache[i] = new Snapshot();
 				_inputCache[i] = new PlayerInp[MaxNetworkBehaviours];
 			}
 		}
@@ -70,26 +70,17 @@ namespace Networking
 			}
 		}
 
-		public void RollBack(int tick)
+		public void SetState(int tick, Snapshot state)
 		{
-			_networkBehaviours = IdTable<NetworkEntity>.GetValues();
-			foreach (var behaviour in _networkBehaviours)
-			{
-				behaviour.Deserialize(GetState(tick, behaviour.NetworkId));
-			}
-		}
-
-		public void SetState(int tick, Message[] state)
-		{
-			//_stateCache[tick % StateCacheSize] = state;
+			//_stateCache[tick % StateCacheSize] = snapshotData;
 			TimeTicker.I.CurrentTick = tick;
 			foreach (var behaviour in _networkBehaviours)
 			{
-				behaviour.Deserialize(state[behaviour.NetworkId]);
+				behaviour.Deserialize(state.Get(behaviour.NetworkId));
 			}
 		}
 
-		public void Reconcile(int tick, Message[] state)
+		public void Reconcile(int tick, Snapshot snapshot)
 		{
 			_networkBehaviours = IdTable<NetworkEntity>.GetValues();
 			_inputHandlers = IdTable<PlayerInputHandler>.GetValues();
@@ -99,7 +90,7 @@ namespace Networking
 			//DebugPrintInputCache("first ");
 			foreach (var behaviour in _networkBehaviours)
 			{
-				behaviour.Deserialize(state[behaviour.NetworkId]);
+				behaviour.Deserialize(snapshot.Get(behaviour.NetworkId));
 			}
 
 			var currentTick = TimeTicker.I.CurrentTick;
@@ -120,9 +111,9 @@ namespace Networking
 			//DebugPrintInputCache("second ");
 		}
 
-		private Message GetState(int tick, int networkBehaviourIndex)
+		private Message GetState(int tick, ushort networkBehaviourIndex)
 		{
-			return _stateCache[tick % StateCacheSize][networkBehaviourIndex];
+			return _stateCache[tick % StateCacheSize].Get(networkBehaviourIndex);
 		}
 
 		private PlayerInp GetInput(int tick, int inputHandlerIndex)
@@ -130,9 +121,9 @@ namespace Networking
 			return _inputCache[tick % StateCacheSize][inputHandlerIndex];
 		}
 
-		private void RememberState(int tick, int networkBehaviourIndex, Message message)
+		private void RememberState(int tick, ushort networkBehaviourIndex, Message message)
 		{
-			_stateCache[tick % StateCacheSize][networkBehaviourIndex] = message;
+			_stateCache[tick % StateCacheSize].Set(networkBehaviourIndex, message);
 		}
 
 		private void RememberInput(int tick, int inputHandlerIndex, PlayerInp message)
@@ -158,40 +149,25 @@ namespace Networking
 		private void PrepareStateAndSend()
 		{
 			int tick = TimeTicker.I.CurrentTick;
-			byte[][] states = new byte[IdTable<NetworkEntity>.MaxId][];
-			Message[] snapshot = _stateCache[tick % StateCacheSize];
-			foreach (var networkBehaviour in _networkBehaviours)
-			{
-				states[networkBehaviour.NetworkId] = snapshot[networkBehaviour.NetworkId].Bytes;
-			}
-
-
-			RecieveState(tick, states);
+			Snapshot snapshot = _stateCache[tick % StateCacheSize];
+			RecieveState(tick, snapshot);
 		}
 
 		[ClientRpc]
-		private void RecieveState(int tick, byte[][] state)
+		private void RecieveState(int tick, Snapshot snapshot)
 		{
 			if (tick > _lastReceivedTick)
 			{
-				var states = new Message[state.Length];
-				for (var i = 0; i < state.Length; i++)
-				{
-					var message = new Message();
-					if (state[i] == null || state[i].Length == 0) continue;
-					Array.Copy(state[i], message.Bytes, state[i].Length);
-					states[i] = message;
-				}
-
 				if (tick < TimeTicker.I.CurrentTick)
 				{
-					Reconcile(tick, states);
+					Reconcile(tick, snapshot);
 					Debug.Log("Reconciled");
 				}
 				else
 				{
-					SetState(tick, states);
+					SetState(tick, snapshot);
 				}
+
 				_lastReceivedTick = tick;
 			}
 		}
