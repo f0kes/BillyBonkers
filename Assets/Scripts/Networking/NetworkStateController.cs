@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using GameState;
 using Mirror;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Networking
 {
@@ -23,6 +25,7 @@ namespace Networking
 			_inputCache = new PlayerInp[StateCacheSize][]; // [tick][InputHandlerIndex]
 
 		private int _lastReceivedTick;
+		private bool _reconciliationScheduled;
 
 		private void Start()
 		{
@@ -53,17 +56,15 @@ namespace Networking
 				RememberState(args.Tick, behaviour.NetworkId, behaviour.Serialize());
 			}
 
-			foreach (var inputHandler in _inputHandlers)
+			if (!args.Simulating)
 			{
-				RememberInput(args.Tick, IdTable<PlayerInputHandler>.GetId(inputHandler), inputHandler.GetFrameInput());
+				foreach (var inputHandler in _inputHandlers)
+				{
+					RememberInput(args.Tick, IdTable<PlayerInputHandler>.GetId(inputHandler),
+						inputHandler.GetFrameInput());
+				}
 			}
 
-			/*if (args.Tick % TimeTicker.SecondsToTicks(2) == 0 && !_reconciledTicks.Contains(args.Tick))
-			{
-				_reconciledTicks.Add(args.Tick);
-				Reconcile(args.Tick - TimeTicker.SecondsToTicks(0.3f),
-					_stateCache[(args.Tick - TimeTicker.SecondsToTicks(0.3f)) % StateCacheSize]);
-			}*/
 			if (isServer)
 			{
 				PrepareStateAndSend();
@@ -85,16 +86,19 @@ namespace Networking
 			_networkBehaviours = IdTable<NetworkEntity>.GetValues();
 			_inputHandlers = IdTable<PlayerInputHandler>.GetValues();
 
-			var inputCacheCopy = _inputCache.Clone() as PlayerInp[][];
-
-			//DebugPrintInputCache("first ");
 			foreach (var behaviour in _networkBehaviours)
 			{
 				behaviour.Deserialize(snapshot.Get(behaviour.NetworkId));
 			}
 
+			foreach (var inputHandler in _inputHandlers)
+			{
+				inputHandler.CacheInput();
+			}
+
 			var currentTick = TimeTicker.I.CurrentTick;
 			TimeTicker.I.CurrentTick = tick;
+
 			while (TimeTicker.I.CurrentTick < currentTick)
 			{
 				foreach (var inputHandler in _inputHandlers)
@@ -106,9 +110,10 @@ namespace Networking
 				TimeTicker.I.Tick(true);
 			}
 
-			//Debug.Log("Rollback complete, tick before rollback: " + currentTick + ", tick after rollback: " +
-			//         TimeTicker.I.CurrentTick);
-			//DebugPrintInputCache("second ");
+			foreach (var inputHandler in _inputHandlers)
+			{
+				inputHandler.RestoreInput();
+			}
 		}
 
 		private Message GetState(int tick, ushort networkBehaviourIndex)
@@ -148,27 +153,47 @@ namespace Networking
 		[Server]
 		private void PrepareStateAndSend()
 		{
-			int tick = TimeTicker.I.CurrentTick;
-			Snapshot snapshot = _stateCache[tick % StateCacheSize];
-			RecieveState(tick, snapshot);
+			var tick = TimeTicker.I.CurrentTick;
+			var snapshot = _stateCache[tick % StateCacheSize];
+			OnClientRecieveState(tick, snapshot);
 		}
 
 		[ClientRpc]
-		private void RecieveState(int tick, Snapshot snapshot)
+		private void OnClientRecieveState(int tick, Snapshot snapshot)
 		{
+			if (isServer) return;
 			if (tick > _lastReceivedTick)
 			{
+				_lastReceivedTick = tick;
 				if (tick < TimeTicker.I.CurrentTick)
 				{
-					Reconcile(tick, snapshot);
-					Debug.Log("Reconciled");
+					ScheduleReconciliation(tick, snapshot);
+					//SetState(tick, snapshot);
 				}
 				else
 				{
 					SetState(tick, snapshot);
+					TimeTicker.I.SyncTick();
 				}
+			}
+		}
 
-				_lastReceivedTick = tick;
+		private void ScheduleReconciliation(int tick, Snapshot snapshot)
+		{
+			if (_reconciliationScheduled)
+			{
+				return;
+			}
+
+			_reconciliationScheduled = true;
+			TimeTicker.OnTickStart += Tick;
+
+			void Tick(TimeTicker.OnTickEventArgs args)
+			{
+				if(args.Simulating) return;
+				TimeTicker.OnTickStart -= Tick;
+				Reconcile(tick, snapshot);
+				_reconciliationScheduled = false;
 			}
 		}
 	}

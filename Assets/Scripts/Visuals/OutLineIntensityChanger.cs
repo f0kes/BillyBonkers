@@ -20,8 +20,9 @@ namespace Visuals
 
 		private void ChangeOutLine(float intensity)
 		{
+			if (_renderer == null && _ball==null) return;
 			Material material = new Material(_renderer.material);
-			Color newColor = _ball.Skin.mainColor*intensity;
+			Color newColor = _ball.Skin.mainColor * intensity;
 			material.SetColor(Emission, newColor);
 			_renderer.material = material;
 			_fixer.Fix();

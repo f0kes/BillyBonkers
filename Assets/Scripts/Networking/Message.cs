@@ -13,10 +13,22 @@ namespace Networking
 		private ushort _readPos = 0;
 
 		public int UnreadLength => _writePos - _readPos;
-		public int WrittenLength => _writePos;
+		public ushort WrittenLength
+		{
+			get => _writePos;
+			set => _writePos = value;
+		}
+
 		internal int UnwrittenLength => Bytes.Length - _writePos;
 
 		public Message(int maxSize = MaxMessageSize) => Bytes = new byte[maxSize];
+
+		public byte[] ToArray()
+		{
+			var array = new byte[_writePos];
+			Buffer.BlockCopy(Bytes, 0, array, 0, _writePos);
+			return array;	
+		}
 
 		#region Byte
 

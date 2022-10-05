@@ -22,9 +22,10 @@ namespace Entities
 		public Action<Collision> OnCollision;
 		public Action<Skin> OnSetSkin;
 		public Action<float> OnOutlineIntensityChange;
+		public Action OnDestroyEvent;
 
 		#endregion
-		
+
 		public StatDict<BallStat> Stats = new StatDict<BallStat>();
 		public float Health { get; private set; }
 		public int ScoredBalls { get; private set; }
@@ -34,16 +35,36 @@ namespace Entities
 		private GameObject _floor;
 
 		private bool _dead = false;
+		private BallMovement _movement;
+		public Transform RbTransform => _rb.transform;
 
 		public float OutlineIntensity { get; private set; }
 
 		public Skin Skin { get; private set; }
+
+		public bool IsPlayer
+		{
+			get
+			{
+				if (_movement == null)
+				{
+					return false;
+				}
+
+				return _movement.IsPlayer;
+			}
+		}
 
 		[Serializable]
 		public struct EnumeratedStat
 		{
 			public BallStat Name;
 			public Stat Value;
+		}
+
+		public void SetMovement(BallMovement movement)
+		{
+			_movement = movement;
 		}
 
 		protected override void Awake()
@@ -56,6 +77,12 @@ namespace Entities
 
 			Health = Stats[BallStat.Health];
 			_rb = GetComponentInChildren<Rigidbody>();
+		}
+
+		protected void OnDestroy()
+		{
+			OnDestroyEvent?.Invoke();
+			Destroy(transform.root.gameObject);
 		}
 
 		public override Message Serialize()
@@ -86,10 +113,16 @@ namespace Entities
 			var velocity = new Vector3(message.GetFloat(), message.GetFloat(), message.GetFloat());
 			var angularVelocity = new Vector3(message.GetFloat(), message.GetFloat(), message.GetFloat());
 			Health = message.GetFloat();
+			if (_rb == null) return;
 			_rb.position = position;
 			_rb.rotation = rotation;
 			_rb.velocity = velocity;
 			_rb.angularVelocity = angularVelocity;
+		}
+
+		public override bool HasChanged(Message message)
+		{
+			return true;
 		}
 
 		public void SetSkin(Skin skin)
@@ -114,6 +147,7 @@ namespace Entities
 			return _rb != null ? _rb.position : Vector3.zero;
 		}
 
+
 		public virtual void ApplyDamage(Strike strike, bool addForce = true)
 		{
 			OnHit?.Invoke(strike);
@@ -125,16 +159,19 @@ namespace Entities
 			Health -= strike.HitVector.magnitude * strike.DamageMultiplier;
 			if (Health <= 0)
 			{
+				if (!isServer) return;
 				Die();
 			}
 		}
+
+		[ClientRpc]
 		protected virtual void Die()
 		{
 			if (!_dead)
 			{
 				OnDeath?.Invoke();
 				_dead = true;
-				
+
 				TimeTicker.I.InvokeInTime((() => { OnDeathEnd?.Invoke(); }), 1f);
 				TimeTicker.I.InvokeInTime((() => { NetworkServer.Destroy(gameObject); }), 1f);
 			}
@@ -155,7 +192,13 @@ namespace Entities
 
 		public virtual void KillTrigger(KillTrigger killTrigger)
 		{
+			if (!isServer) return;
 			Die();
+		}
+
+		public void SetInputHandler(PlayerInputHandler playerInputHandler)
+		{
+			_movement.SetInputHandler(playerInputHandler);
 		}
 	}
 }

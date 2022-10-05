@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
+using Mirror;
 using UI;
 using UnityEngine;
 
 namespace GameState
 {
-	public class WinConditionChecker : MonoBehaviour
+	public class WinConditionChecker : NetworkBehaviour
 	{
 		private List<WinCondition> _conditions = new List<WinCondition>();
 		[SerializeField] private RoundEndScreen _endScreenToSpawn;
+		
 		private bool _roundFinished = false;
 		private bool _roundStarted = false;
 
@@ -22,7 +24,7 @@ namespace GameState
 		{
 			AddWinCondition(new OneSurvivorWinCondition());
 			AddWinCondition(new ScoreWinCondition(10));
-			TimeTicker.OnTick += OnTick;
+			GameInitializer.OnGameStart += OnGameStart;
 		}
 
 		private void OnDisable()
@@ -30,14 +32,23 @@ namespace GameState
 			TimeTicker.OnTick -= OnTick;
 		}
 
-		private void Start()
+		private void OnGameStart()
 		{
-			//_roundStarted = true;
+			if (isServer)
+			{
+				_roundStarted = true;
+				Debug.Log("Round started");
+			}
+			TimeTicker.OnTick += OnTick;
+			GameInitializer.OnGameStart -= OnGameStart;
 		}
 
 		private void OnTick(TimeTicker.OnTickEventArgs args)
 		{
-			if (_roundFinished || !_roundStarted) return;
+			if (_roundFinished || !_roundStarted)
+			{
+				return;
+			}
 			foreach (var condition in _conditions)
 			{
 				RoundFinishMessage message;
@@ -48,11 +59,13 @@ namespace GameState
 			}
 		}
 
+		[ClientRpc]
 		private void InitializeRoundFinish(RoundFinishMessage victoryMessage)
 		{
 			_roundFinished = true;
 			if (victoryMessage.Tie == false)
 			{
+				Debug.Log("Not a tie");
 				victoryMessage.Winner.AddWin();
 			}
 

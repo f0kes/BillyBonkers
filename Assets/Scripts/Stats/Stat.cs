@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using GameState;
+using Mirror;
 
 namespace Structures
 {
-  
 	using System.Collections.Generic;
 	using UnityEngine;
 
@@ -12,8 +12,7 @@ namespace Structures
 		[System.Serializable]
 		public class Stat
 		{
-			[SerializeField]
-			private float baseValue;
+			[SerializeField] private float baseValue;
 
 			public float BaseValue => baseValue;
 
@@ -32,10 +31,11 @@ namespace Structures
 				_modifiers = new List<StatModifier>();
 				this.baseValue = baseValue;
 			}
+
 			public float GetValue()
 			{
 				float result = baseValue;
-				foreach (var mod in _modifiers )
+				foreach (var mod in _modifiers)
 				{
 					mod.ApplyMod(ref result, baseValue);
 				}
@@ -57,16 +57,15 @@ namespace Structures
 			public void AddTemporalMod(StatModifier mod, float time)
 			{
 				AddMod(mod);
-				TimeTicker.I.InvokeInTime(()=>{RemoveMod(mod);}, time);
+				TimeTicker.I.InvokeInTime(() => { RemoveMod(mod); }, time);
 			}
 			
 			public void AddMod(StatModifier mod)
 			{
 				_modifiers.Add(mod);
 				_modifiers = _modifiers.OrderBy(m => m.priority).ToList();
-
 			}
-
+			
 			public void RemoveMod(StatModifier mod)
 			{
 				if (_modifiers.Contains(mod))

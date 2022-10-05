@@ -18,14 +18,14 @@ public class BallMovement : MonoBehaviour
 	private PlayerInp _frameInp;
 
 	private bool _controlDisabled = true;
+	
 
 	private void Awake()
 	{
 		_rb = gameObject.GetComponentInParent<Rigidbody>();
-		//_inputHandler = gameObject.GetComponentInParent<PlayerInputHandler>();
 		Ball = GetComponentInParent<Ball>();
 		Ball.OnDeath += DisableControl;
-		IdTable<BallMovement>.Add(this);
+		Ball.SetMovement(this);
 	}
 
 	private void Start()
@@ -62,6 +62,7 @@ public class BallMovement : MonoBehaviour
 	{
 		Vector2 dir = new Vector2(inp.XMove, inp.ZMove);
 		AccelerateTowards(dir);
+		if(cue==null) return;
 		cue.ProcessInput(inp);
 	}
 

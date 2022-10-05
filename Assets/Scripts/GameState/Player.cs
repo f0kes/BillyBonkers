@@ -55,9 +55,7 @@ namespace GameState
 			PlayerBall.SetSkin(Skin);
 			RoundStarted = true;
 		}
-
 		
-
 		public void ChangeSkin(Skin skin)
 		{
 			Skin = skin;
@@ -71,7 +69,7 @@ namespace GameState
 		{
 			PlayerWins += 1;
 		}
-
+		
 		void OnSceneUnloaded(Scene scene)
 		{
 			if (PlayerBall != null)

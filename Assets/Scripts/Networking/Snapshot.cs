@@ -28,17 +28,29 @@ namespace Networking
 		{
 			var msg = new Message();
 			Array.Copy(_data[netID], msg.Bytes, _data[netID].Length);
+			msg.WrittenLength = (ushort)_data[netID].Length;
 			return msg;
 		}
 
 		public void Set(ushort netID, Message data)
 		{
-			_data[netID] = data.Bytes;
+			_data[netID] = data.ToArray();
 		}
 
 		public void Remove(ushort netID)
 		{
 			_data.Remove(netID);
+		}
+		public int GetByteSize()
+		{
+			int size = 0;
+			foreach (var item in _data)
+			{
+				size += sizeof(ushort);
+				size += sizeof(ushort);
+				size += item.Value.Length * sizeof(byte);
+			}
+			return size;
 		}
 		
 	}

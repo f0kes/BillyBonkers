@@ -24,21 +24,21 @@ namespace UI
 			[Scene] public string Level;
 			public bool On;
 		}
-		
+
 		[SerializeField] private Player _fakePlayerPrefab;
 		[SerializeField] private int _minPlayers = 1;
 		[SerializeField] private List<LevelBool> Levels;
 		[SerializeField] private List<PlayerMenuRepresenter> playerMenuRepresenters = new List<PlayerMenuRepresenter>();
 		[SerializeField] private TextMeshProUGUI timer;
 
-		private readonly List<LobbyPlayer> _players = new List<LobbyPlayer>();
+		private static readonly List<LobbyPlayer> Players = new List<LobbyPlayer>();
 
 		private IEnumerable<bool> ReadyStates
 		{
-			get { return _players.Select(player => player.IsReady).ToList(); }
+			get { return Players.Select(player => player.IsReady).ToList(); }
 		}
 
-		private void Awake()
+		public void Awake()
 		{
 			if (I == null)
 				I = this;
@@ -46,12 +46,21 @@ namespace UI
 				Destroy(gameObject);
 		}
 
+
 		public void AddPlayer(LobbyPlayer player)
 		{
-			if (_players.Contains(player))
+			Debug.Log("Add player");
+			if (Players.Contains(player))
 				return;
 
-			_players.Add(player);
+			Players.Add(player);
+			Debug.Log("Player added");
+		}
+
+		public void RemovePlayer(LobbyPlayer lobbyPlayer)
+		{
+			Debug.Log("Removing player");
+			Players.Remove(lobbyPlayer);
 		}
 
 		private void Start()
@@ -78,7 +87,7 @@ namespace UI
 			}
 
 			var reps = new List<PlayerMenuRepresenter>(playerMenuRepresenters);
-			foreach (var player in _players)
+			foreach (var player in Players)
 			{
 				reps[0].ShowPlayer(player.Player, player.IsReady);
 				reps.Remove(reps[0]);
@@ -91,7 +100,7 @@ namespace UI
 
 			while (time < timeToWait)
 			{
-				if (ReadyStates.All(x => x) && _players.Count >= _minPlayers)
+				if (ReadyStates.All(x => x) && Players.Count >= _minPlayers)
 				{
 					time += Time.deltaTime;
 					ShowTimer(Mathf.CeilToInt(timeToWait - time));
@@ -115,10 +124,12 @@ namespace UI
 				representer.gameObject.SetActive(true);
 			}
 		}
+
 		private void EnableTimer()
 		{
 			timer.gameObject.SetActive(true);
 		}
+
 		private void HideTimer()
 		{
 			timer.text = "";
@@ -127,11 +138,16 @@ namespace UI
 		private void StartRound()
 		{
 			var randLevel = Random.Range(0, Levels.Count);
-			if (_players.Count < 2)
-				Instantiate(_fakePlayerPrefab);
+			if (Players.Count < 2)
+			{
+				Player p = Instantiate(_fakePlayerPrefab);
+				var lobbyPlayer = p.GetComponent<LobbyPlayer>();
+				lobbyPlayer.SetReady(true);
+			}
+
 			LoadScene(randLevel);
 		}
-		
+
 		private void LoadScene(int scene)
 		{
 			var levelName = Levels[scene].Level;

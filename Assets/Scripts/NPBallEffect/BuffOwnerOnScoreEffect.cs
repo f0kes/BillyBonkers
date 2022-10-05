@@ -33,6 +33,7 @@ namespace NPBallEffect
 
 		private void ModifyStat(NpBall npBall)
 		{
+			if(npBall.Owner == null) return;
 			StatModifierAdd addMod = new StatModifierAdd(value, 2);
 			npBall.Owner.Stats.GetStat(statToChange).AddTemporalMod(addMod, time);
 			foreach (var statEffect in statsToChange)
@@ -57,7 +58,7 @@ namespace NPBallEffect
 		{
 			Vector3 pos = ball.GetPosition();
 			pos = new Vector3(pos.x, pos.y + 5, pos.z);
-			Instantiate(icon, pos, quaternion.identity);
+			//Instantiate(icon, pos, quaternion.identity);
 		}
 	}
 }

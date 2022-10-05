@@ -5,12 +5,13 @@ using DefaultNamespace;
 using Entities;
 using Enums;
 using GameState;
+using Networking;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class Cue : MonoBehaviour
+public class Cue : NetworkEntity
 {
-	private Ball _ball;
+	[SerializeField] private Ball _ball;
 
 	[SerializeField] private Rigidbody ballBody;
 	[SerializeField] private LayerMask ballMask;
@@ -23,9 +24,28 @@ public class Cue : MonoBehaviour
 	private float _currentChargeTime = 0;
 
 
-	private void Awake()
+	protected override void Awake()
 	{
-		_ball = GetComponentInParent<Ball>();
+		base.Awake();
+		//_ball.OnDestroyEvent += () => Destroy(gameObject);
+		//transform.parent = null;
+	}
+
+	public override Message Serialize()
+	{
+		Message message = new Message();
+		message.AddFloat(_currentChargeTime);
+		return message;
+	}
+
+	public override void Deserialize(Message message)
+	{
+		_currentChargeTime = message.GetFloat();
+	}
+
+	public override bool HasChanged(Message message)
+	{
+		return _currentChargeTime != message.GetFloat();
 	}
 
 	private void FixedUpdate()
@@ -48,7 +68,7 @@ public class Cue : MonoBehaviour
 	private void AimAndPosition()
 	{
 		var position = ballBody.position;
-		_dir = (position - _bodyOldPos).normalized;
+		_dir = ballBody.velocity.normalized;
 		_bodyOldPos = position;
 
 		transform.position = ballBody.position + _dir + Vector3.up * 0.5f + _chargeDisplacement;

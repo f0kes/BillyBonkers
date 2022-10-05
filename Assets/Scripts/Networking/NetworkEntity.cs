@@ -12,8 +12,14 @@ namespace Networking
 
 		protected virtual void Awake()
 		{
+			
+		}
+
+		public void Init()
+		{
 			IdTable<NetworkEntity>.Add(this);
 			NetworkId = IdTable<NetworkEntity>.GetId(this);
+			RpcSetId(NetworkId);
 		}
 
 		protected virtual void Start()
@@ -25,10 +31,6 @@ namespace Networking
 		{
 			IdTable<NetworkEntity>.Remove(this);
 			TimeTicker.OnTick -= OnTick;
-		}
-		protected virtual void OnDestroy()
-		{
-			
 		}
 
 		private void OnTick(TimeTicker.OnTickEventArgs args)
@@ -42,11 +44,21 @@ namespace Networking
 
 		public abstract Message Serialize();
 		public abstract void Deserialize(Message message);
-		
+		public abstract bool HasChanged(Message message);
+
+		[ClientRpc]
+		public void RpcSetId(ushort id)
+		{
+			NetworkId = id;
+			IdTable<NetworkEntity>.Add(this, id);
+		}
+
+
 		public static explicit operator ushort(NetworkEntity entity)
 		{
 			return entity.NetworkId;
 		}
+
 		public static explicit operator NetworkEntity(ushort id)
 		{
 			return IdTable<NetworkEntity>.GetValue(id);

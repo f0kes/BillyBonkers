@@ -36,6 +36,16 @@ namespace Networking
 			_nextId++;
 			return (ushort) (_nextId - 1);
 		}
+		public static ushort Add(T value, ushort id)
+		{
+			Table[id] = value;
+			ReverseTable[value] = id;
+
+			if (id >= _nextId)
+				_nextId = (ushort) (id + 1);
+
+			return id;
+		}
 
 		public static void Remove(T value)
 		{
@@ -44,6 +54,10 @@ namespace Networking
 
 			Table.Remove(ReverseTable[value]);
 			ReverseTable.Remove(value);
+		}
+		public static List<T> GetAll()
+		{
+			return Table.Values.ToList();
 		}
 
 		public static ushort GetId(T value)

@@ -76,7 +76,7 @@ public class SteamManager : MonoBehaviour {
 			throw new System.Exception("Tried to Initialize the SteamAPI twice in one session!");
 		}
 
-		// We want our SteamManager Instance to persist across scenes.
+		// We want our SteamManager I to persist across scenes.
 		DontDestroyOnLoad(gameObject);
 
 		if (!Packsize.Test()) {

@@ -13,6 +13,7 @@ namespace GameState
 		public class OnTickEventArgs : EventArgs
 		{
 			public int Tick;
+			public bool Simulating;
 		}
 
 		public class OnUpdateEventArgs : EventArgs
@@ -25,14 +26,16 @@ namespace GameState
 		private float _currentTickTime = 0f;
 
 		private int _currentTick;
-		
+
 		private bool _isPaused = false;
+
 		public int CurrentTick
 		{
 			get => _currentTick;
 			set => _currentTick = value;
 		}
 
+		public static event Action<OnTickEventArgs> OnTickStart;
 		public static event Action<OnTickEventArgs> OnTick;
 		public static event Action<OnTickEventArgs> OnTickEnd;
 		public static event EventHandler<OnUpdateEventArgs> OnUpdate;
@@ -57,7 +60,6 @@ namespace GameState
 			{
 				I = this;
 				DontDestroyOnLoad(this);
-				
 			}
 			else
 			{
@@ -68,13 +70,19 @@ namespace GameState
 		public override void OnStartClient()
 		{
 			base.OnStartClient();
-			_currentTick = 0;
+			SyncTick();
 			Unpause();
+		}
+
+		public override void OnStopServer()
+		{
+			base.OnStopServer();
+			SyncTick();
 		}
 
 		private void Update()
 		{
-			if(_isPaused) return;
+			if (_isPaused) return;
 			_currentTickTime += Time.deltaTime;
 			while (_currentTickTime >= TickInterval)
 			{
@@ -84,16 +92,12 @@ namespace GameState
 
 			OnUpdate?.Invoke(this, new OnUpdateEventArgs {DeltaTime = Time.deltaTime});
 		}
-
-		public void Reset()
-		{
-			_currentTick = 0;
-		}
-
+		
 		public void Pause()
 		{
 			_isPaused = true;
 		}
+
 		public void Unpause()
 		{
 			_isPaused = false;
@@ -102,16 +106,30 @@ namespace GameState
 		public void Tick(bool simulating = false)
 		{
 			_currentTick++;
-			OnTick?.Invoke(new OnTickEventArgs {Tick = _currentTick});
-			OnTickEnd?.Invoke(new OnTickEventArgs {Tick = _currentTick});
+			OnTickStart?.Invoke(new OnTickEventArgs {Tick = _currentTick, Simulating = simulating});
+			OnTick?.Invoke(new OnTickEventArgs {Tick = _currentTick, Simulating = simulating});
+
 			Physics.Simulate(TickInterval);
-			if(simulating) return;
-			InputSystem.Update();
+			if (!simulating)
+			{
+				InputSystem.Update();
+			}
+
+			OnTickEnd?.Invoke(new OnTickEventArgs {Tick = _currentTick, Simulating = simulating});
 		}
+		
+		public void SyncTick()
+		{
+			double now = NetworkTime.time;
+			int tick = (int)Math.Floor((now / TickInterval));
+			_currentTick = tick;
+		}
+
 		public static float TicksToSeconds(int ticks)
 		{
 			return ticks * TickInterval;
 		}
+
 		public static int SecondsToTicks(float seconds)
 		{
 			return (int) (seconds / TickInterval);

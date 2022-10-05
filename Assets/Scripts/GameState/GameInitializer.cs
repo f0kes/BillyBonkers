@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Cinemachine;
+using Entities;
 using Mirror;
 using Networking;
 using Steamworks;
@@ -14,34 +15,36 @@ namespace GameState
 	{
 		private CinemachineTargetGroup _cinemachineTargetGroup;
 		private Dictionary<int, bool> _readyStates = new Dictionary<int, bool>();
+		private bool _isGameStarted = false;
+		public static event Action OnGameStart;
 
 		private void Awake()
 		{
 			TimeTicker.I.Pause();
 		}
 
+
 		private void Start()
 		{
 			_cinemachineTargetGroup = FindObjectOfType<CinemachineTargetGroup>();
+			_isGameStarted = true;
 		}
 
 		public override void OnStartClient()
 		{
 			base.OnStartClient();
-			Debug.Log("OnStartClient");
 			SendReady();
 		}
 
 		public override void OnStartServer()
 		{
 			base.OnStartServer();
-			Debug.Log("OnStartServer");
 			InitWhenReady();
 		}
 
 		private async void InitWhenReady()
 		{
-			while (_readyStates.Count < NetworkManager.singleton.numPlayers)
+			while (_readyStates.Count < NetworkManager.singleton.numPlayers )
 			{
 				await Task.Yield();
 			}
@@ -54,35 +57,45 @@ namespace GameState
 		{
 			_cinemachineTargetGroup = FindObjectOfType<CinemachineTargetGroup>();
 			if (!isServer) return;
-			var balls = FindObjectsOfType<BallMovement>().ToList().Where((x) => x.IsPlayer);
+
+			IdTable<NetworkEntity>.Clear();
+			RpcClearNetworkEntities();
+			var networkEntities = FindObjectsOfType<NetworkEntity>().ToList();
+			foreach (var networkEntity in networkEntities)
+			{
+				networkEntity.Init();
+			}
+
+			var balls = FindObjectsOfType<Ball>().ToList().Where((x) => x.IsPlayer);
 			var unusedPlayers = new List<Player>(Player.Players);
 			foreach (var mover in balls)
 			{
 				InitBall(unusedPlayers, mover);
 			}
 
-			RpcStartTicker();
+			RpcInitClient();
 		}
 
-		private void InitBall(IList<Player> unusedPlayers, BallMovement mover)
+		private void InitBall(IList<Player> unusedPlayers, NetworkEntity ball)
 		{
 			if (unusedPlayers.Count > 0)
 			{
 				var player = unusedPlayers[0];
-				SetBallToPlayerWithIds(player.PlayerId, IdTable<BallMovement>.GetId(mover));
+				SetBallToPlayerWithIds(player.PlayerId, IdTable<NetworkEntity>.GetId(ball));
 				unusedPlayers.Remove(unusedPlayers[0]);
 			}
 			else
 			{
-				NetworkServer.Destroy(mover.transform.root.gameObject);
+				NetworkServer.Destroy(ball.gameObject);
+				Destroy(ball.transform.root.gameObject);
 			}
 		}
 
-		private void SetBallToPlayer(Player player, BallMovement movement)
+		private void SetBallToPlayer(Player player, Ball ball)
 		{
-			movement.SetInputHandler(player.inputHandler);
-			player.SetBall(movement.Ball);
-			_cinemachineTargetGroup.AddMember(movement.transform, 1, 4);
+			ball.SetInputHandler(player.inputHandler);
+			player.SetBall(ball);
+			_cinemachineTargetGroup.AddMember(ball.RbTransform, 1, 4);
 		}
 
 		[ClientRpc]
@@ -90,15 +103,22 @@ namespace GameState
 		{
 			Debug.Log($"Setting ball {ballID} to player {playerID}");
 			var player = (Player) playerID;
-			var ball = IdTable<BallMovement>.GetValue(ballID);
+			var ball = (Ball) IdTable<NetworkEntity>.GetValue(ballID);
 			SetBallToPlayer(player, ball);
 		}
 
 		[ClientRpc]
-		private void RpcStartTicker()
+		private void RpcInitClient()
 		{
-			TimeTicker.I.Reset();
+			TimeTicker.I.SyncTick();
 			TimeTicker.I.Unpause();
+			OnGameStart?.Invoke();
+		}
+
+		[ClientRpc]
+		private void RpcClearNetworkEntities()
+		{
+			IdTable<NetworkEntity>.Clear();
 		}
 
 		[Command(requiresAuthority = false)]

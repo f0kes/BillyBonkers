@@ -12,6 +12,9 @@ namespace Networking
 		private Callback<LobbyEnter_t> _lobbyEnter;
 
 		private NetworkManager _networkManager;
+		private ulong _lobbyId;
+		private bool _isInLobby;
+		private bool _isHost;
 
 		private void Start()
 		{
@@ -20,19 +23,26 @@ namespace Networking
 			_lobbyCreated = Callback<LobbyCreated_t>.Create(OnLobbyCreated);
 			_gameLobbyJoinRequested = Callback<GameLobbyJoinRequested_t>.Create(OnGameLobbyJoinRequested);
 			_lobbyEnter = Callback<LobbyEnter_t>.Create(OnLobbyEnter);
+			HostLobby();
 		}
 
 		private void OnLobbyEnter(LobbyEnter_t param)
 		{
-			if(NetworkServer.active || NetworkClient.isConnected) return;
+			if (NetworkServer.active || NetworkClient.isConnected) return;
 			var hostAddress = SteamMatchmaking.GetLobbyData(new CSteamID(param.m_ulSteamIDLobby), "HostAddress");
+			_lobbyId = param.m_ulSteamIDLobby;
 			_networkManager.networkAddress = hostAddress;
 			_networkManager.StartClient();
-			
+			_isInLobby = true;
+			_isHost = false;
 		}
 
 		private void OnGameLobbyJoinRequested(GameLobbyJoinRequested_t param)
 		{
+			if (_isInLobby)
+			{
+				LeaveLobby();
+			}
 			SteamMatchmaking.JoinLobby(param.m_steamIDLobby);
 		}
 
@@ -42,11 +52,32 @@ namespace Networking
 			_networkManager.StartHost();
 			SteamMatchmaking.SetLobbyData(new CSteamID(param.m_ulSteamIDLobby), "HostAddress",
 				SteamUser.GetSteamID().ToString());
+			_lobbyId = param.m_ulSteamIDLobby;
+			_isInLobby = true;
+			_isHost = true;
 		}
 
 		public void HostLobby()
 		{
+			if (_isInLobby)
+			{
+				LeaveLobby();
+			}
+
 			SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, _networkManager.maxConnections);
+		}
+
+		public void LeaveLobby()
+		{
+			SteamMatchmaking.LeaveLobby(new CSteamID(_lobbyId));
+			if (_isHost)
+			{
+				_networkManager.StopHost();
+			}
+			else
+			{
+				_networkManager.StopClient();
+			}
 		}
 	}
 }
